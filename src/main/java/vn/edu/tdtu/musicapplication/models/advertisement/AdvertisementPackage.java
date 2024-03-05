@@ -1,5 +1,6 @@
 package vn.edu.tdtu.musicapplication.models.advertisement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,10 +24,14 @@ public class AdvertisementPackage {
     private BigDecimal price;
     private Integer discount; //Don vi phan tram
     private String description;
+    private Boolean active;
+    private String name;
+    private String specialFeatures;
     @Enumerated(EnumType.STRING)
     private EAdUnit unit;
     @Enumerated(EnumType.STRING)
     private EAdType type;
     @OneToMany(mappedBy = "aPackage")
+    @JsonIgnore
     private List<Advertisement> advertisements;
 }

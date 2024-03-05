@@ -144,7 +144,7 @@ public class PackageService {
             response.setData(mPackage);
             response.setCode(HttpServletResponse.SC_OK);
             response.setStatus(true);
-            response.setMessage("Genre fetched successfully");
+            response.setMessage("Package fetched successfully");
         }
 
         return response;
@@ -173,12 +173,6 @@ public class PackageService {
                     UserPackageBought userPackageBought = new UserPackageBought();
                     if(!didBuyPackage(foundUser, foundPackage)){
                         userPackageBought.setMPackage(foundPackage);
-//                        userPackageBought.setBoughtDate(LocalDateTime.now());
-//                        userPackageBought.setExpirationDate(
-//                                userPackageBought
-//                                        .getBoughtDate()
-//                                        .plusDays(foundPackage.getDuration())
-//                        );
                         userPackageBought.setStatus(false);
                         userPackageBought.setUser(foundUser);
                         userPackageBought.setAmount(requestBody.getAmount());
