@@ -1,10 +1,12 @@
 package vn.edu.tdtu.musicapplication.models.artist_request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.tdtu.musicapplication.enums.EArtistRequestStatus;
 import vn.edu.tdtu.musicapplication.models.User;
 
 import java.time.LocalDateTime;
@@ -19,16 +21,20 @@ public class ArtistRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private Boolean isAccepted;
+    @Enumerated(EnumType.STRING)
+    private EArtistRequestStatus status;
+    private Boolean active;
     private LocalDateTime requestedDate;
-    private List<String> works;
-    private List<String> ownerships;
-    @OneToMany(mappedBy = "artistRequest")
+    @OneToMany(mappedBy = "artistRequest", cascade = CascadeType.ALL)
+    private List<Work> works;
+    @OneToMany(mappedBy = "artistRequest", cascade = CascadeType.ALL)
+    private List<OwnerShip> ownerships;
+    @OneToMany(mappedBy = "artistRequest", cascade = CascadeType.ALL)
     private List<LegalDocument> legalDocuments;
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "userId")
     private User user;
-    @OneToOne
-    @JoinColumn(name = "personalInfoId")
-    private PersonalInfo personalInfo;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "artistInfoId")
+    private ArtistInfo artistInfo;
 }

@@ -26,6 +26,7 @@ public class Song {
     private String lyrics;
     private String audioUrl;
     private String imageUrl;
+    private String author;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "Song_Artist",

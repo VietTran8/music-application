@@ -1,10 +1,12 @@
 package vn.edu.tdtu.musicapplication.models.advertisement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.tdtu.musicapplication.enums.EAdStatus;
 import vn.edu.tdtu.musicapplication.enums.EPaymentMethod;
 import vn.edu.tdtu.musicapplication.models.User;
 
@@ -24,19 +26,28 @@ public class Advertisement {
     private LocalDateTime expirationDate;
     private LocalDateTime boughtDate;
     private String imageUrl;
+    private String productName;
     private EPaymentMethod paymentMethod;
     private BigDecimal amount;
-    private Boolean status;
+    @Enumerated(EnumType.STRING)
+    private EAdStatus status;
     @ManyToOne
     @JoinColumn(name = "packageId")
     private AdvertisementPackage aPackage;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "contactInfoId")
     private ContactInfo contactInfo;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "enterpriseInfoId")
     private EnterpriseInfo enterpriseInfo;
     @ManyToOne
     @JoinColumn(name = "userId")
+    @JsonIgnore
     private User user;
+
+    public boolean isValid(){
+        return this.getActive()
+                && this.getExpirationDate().isAfter(LocalDateTime.now())
+                && this.getStatus() == EAdStatus.APPROVED;
+    }
 }

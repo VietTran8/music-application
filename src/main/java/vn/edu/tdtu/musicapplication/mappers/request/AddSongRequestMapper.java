@@ -28,6 +28,7 @@ public class AddSongRequestMapper implements Mapper<Song, AddSongRequest> {
         song.setImageUrl(dto.getImageUrl());
         song.setIsPremium(dto.getIsPremium());
         song.setReleaseDate(dto.getReleaseDate());
+        song.setAuthor(dto.getAuthor());
 
         return song;
     }
@@ -48,5 +49,6 @@ public class AddSongRequestMapper implements Mapper<Song, AddSongRequest> {
         song.setImageUrl(dto.getImageUrl());
         song.setIsPremium(dto.getIsPremium());
         song.setReleaseDate(dto.getReleaseDate());
+        song.setAuthor(dto.getAuthor());
     }
 }

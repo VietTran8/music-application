@@ -24,4 +24,5 @@ public class MinimizedSong {
     private MinimizedGenre genre;
     private MinimizedAlbum album;
     private List<MinimizedArtistInfo> artists;
+    private String author;
 }

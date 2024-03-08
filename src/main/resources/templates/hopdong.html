@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hợp đồng</title>
+</head>
+<body>
+<p>Xin chào ${username}, quảng cáo ${adId} của bạn đã được phê duyệt bởi quản trị viên.</p>
+<p><b>Nội dung hợp đồng quảng cáo:</b></p>
+<div style="padding: 50px; border: 1px black solid; border-radius: 10px;">
+    <p style="text-align: justify;"><strong>VSOUND</strong></p>
+    <p style="text-align: center;"><strong>CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM</strong></p>
+    <p style="text-align: center;">Độc lập – Tự do – Hạnh phúc</p>
+    <p style="text-align: center;">———o0o——–</p>
+    <p style="text-align: center;"><strong>HỢP ĐỒNG DỊCH VỤ QUẢNG CÁO</strong></p>
+    <p style="text-align: center;">Số${adId}/2024/HĐHTQC</p>
+    <p style="text-align: justify;">Căn cứ Bộ Luật Dân sự 2015 số 91/2015/QH13.</p>
+    <p style="text-align: justify;">Căn cứ Luật Thương mại 2005 số 36/2005/QH1.</p>
+    <p style="text-align: justify;">Căn cứ Luật Quảng cáo 2012 số 16/2012/QH13.</p>
+    <p style="text-align: justify;">Căn cứ nhu cầu và khả năng của hai bên:</p>
+    <p style="text-align: justify;">Hôm nay, ngày ${day}, tháng ${month}, năm ${year}, tại TPHCM Chúng tôi gồm có:</p>
+    <p style="text-align: justify;"><strong>ĐẠI DIỆN BÊN A</strong>:</p>
+    <p style="text-align: justify;">Ông/bà: ${fullName}, sinh năm: ${birthYear}.</p>
+    <p style="text-align: justify;">CMND/CCCD/Hộ chiếu số: ${legalDocId} do ${issuedBy} cấp ngày ${dated}.</p>
+    <p style="text-align: justify;">Hộ khẩu thường trú tại: ${address}.</p>
+    <p style="text-align: justify;"><strong>ĐẠI DIỆN BÊN B</strong>:</p>
+    <p style="text-align: justify;">Ông/bà: Trần Phan Hoàn Việt, sinh năm: 2003.</p>
+    <p style="text-align: justify;">CMND/CCCD/Hộ chiếu số: 19182398123 do Cục cảnh sát cấp ngày 12/12/2023.</p>
+    <p style="text-align: justify;">Hộ khẩu thường trú tại: 19 Nguyễn Hữu Thọ, Tân Phong, Q7, TPHCM.</p>
+    <p style="text-align: justify;">Website: http://localhost:8080.</p>
+    <p style="text-align: justify;">Sau khi bàn bạc, thỏa thuận các bên thống nhất các nội dung sau:</p>
+    <h3 style="text-align: center;"><span style="font-size: 14pt;">ĐIỀU 1: NỘI DUNG CỦA HỢP ĐỒNG</span></h3>
+    <p style="text-align: justify;">Bên A thuê Bên B hạng mục sau:</p>
+    <p style="text-align: justify;">Bên A chịu trách nhiệm đưa ý tưởng kịch bản và các thông tin về sản phẩm ${productName} cần quảng bá cho bên B.</p>
+    <p style="text-align: justify;">Bên B chịu trách nhiệm đưa thông tin review sản phẩm của bên A dưới hình thức tranh ảnh sản phẩm đã sản xuất trên website của Bên B ở địa chỉ: http://localhost:8080</p>
+    <h3 style="text-align: center;"><span style="font-size: 14pt;">ĐIỀU 2: GIÁ TRỊ HỢP ĐỒNG</span></h3>
+    <p><strong>1. Giá trị hợp đồng</strong></p>
+    <p style="text-align: justify;">Chi phí cho việc thực hiện nội dung công việc nêu tại điều 1 của hợp đồng quảng cáo này là: ${amount} VNĐ.</p>
+    <p style="text-align: justify;"><strong style="color: initial;">2. Phương thích thanh toán</strong></p>
+    <p style="text-align: justify;">Bên A sẽ thanh toán cho Bên B bằng phương thức chuyển khoản theo thông tin bên dưới:</p>
+    <ul>
+    <li style="text-align: justify;">Bên A thanh toán 100% giá trị hợp đồng ngay sau khi 2 bên ký kết hợp đồng.</li>
+    <li style="text-align: justify;">Hình thức thanh toán: <b>Thanh toán chuyển khoản qua VNPAY.</b></li>
+    </ul>
+    <h3 style="text-align: center;"><span style="font-size: 14pt;">ĐIỀU 3: THỜI HẠN CỦA HỢP ĐỒNG</span></h3>
+    <p style="text-align: justify;">Hợp đồng có hiệu lực trong ${duration} ngày kể từ thời điểm hoàn tất thanh toán.</p>
+    <p style="text-align: justify;">Trong thời hạn hợp đồng, Bên B phải đăng tải và cho hiển thị hình ảnh và video review sản phẩm của bên A trên website của Bên B.</p>
+    <p style="text-align: justify;">Trong mọi trường hợp Bên B không được xóa quảng cáo sản phẩm của Bên A, trừ trường hợp bên A hoặc sản phẩm của bên A vi phạm pháp luật hay quy định khác.</p>
+    <h3 style="text-align: center;"><span style="font-size: 14pt;">ĐIỀU 4: QUYỀN VÀ TRÁCH NHIỆM CỦA BÊN A</span></h3>
+    <ul>
+    <li style="text-align: justify;"><strong>Trách nhiệm của Bên A.</strong></li>
+    </ul>
+    <p style="text-align: justify;">Thanh toán đúng thời hạn và đầy đủ giá trị Hợp đồng theo Điều 2 của Hợp đồng này.</p>
+    <p style="text-align: justify;">Cung cấp thông tin chi tiết trung thực, chính xác về thông tin của sản phẩm và chịu trách nhiệm về các thông tin do mình cung cấp cho bên B. Nếu có bất kỳ thông tin sai lệch nào làm ảnh hưởng trực tiếp đến bên B thì phải hoàn toàn chịu trách nhiệm.</p>
+    <p style="text-align: justify;">Nếu có tranh chấp về nhãn hiệu, bản quyền… sản phẩm của bên A thì bên A phải hoàn toàn tự chịu trách nhiệm.</p>
+    <p style="text-align: justify;">Kịp thời thông báo những thay đổi trong nội dung sản phẩm cho bên B. Nếu vi phạm thì bên B không chịu trách nhiệm.</p>
+    <p style="text-align: justify;">Bồi thường thiệt hại cho Bên B nếu vi phạm các thỏa thuận trong Hợp đồng.</p>
+    <ul>
+    <li style="text-align: justify;"><strong>Quyền của Bên A.</strong></li>
+    </ul>
+    <p style="text-align: justify;">Có quyền sở hữu hình ảnh sản phẩm mà bên B đã sản xuất cho Bên A bao gồm việc hiển thị trên website của Bên A.</p>
+    <p style="text-align: justify;">Có quyền kiểm tra, giám sát việc thực hiện hợp đồng của bên B theo các thỏa thuận đã ký kết.</p>
+    <p style="text-align: justify;">Có quyền yêu cầu bên B báo cáo tiến độ thực hiện nội dung thỏa thuận đã ký kết.</p>
+    <p style="text-align: justify;">Có quyền yêu cầu Bên B bồi thường thiệt hại nếu bên B vi phạm thỏa thuận của hợp đồng.</p>
+    <table style="width: 100%; margin-top: 40px;">
+            <th style="text-align: center;">
+                <b>CHỮ KÍ XÁC NHẬN CỦA BÊN A</b>
+            </th>
+            <th style="text-align: center;">
+                <b>CHỮ KÍ XÁC NHẬN CỦA BÊN B</b>
+            </th>
+            <tr>
+                <td style="text-align: center; padding: 10px"><i>(Đã ký)</i></td>
+                <td style="text-align: center; padding: 10px"><i>(Đã ký)</i></td>
+            </tr>
+    </table>
+</div>
+<p>Vui lòng hoàn tất thanh toán để bắt đầu thực hiện hợp đồng bằng cách click vào link: <a href="${createPaymentUrl}"><b>Thanh toán</b></a></p>
+<p>Nếu có thắc mắc, vui lòng liên hệ đường dây nóng: 1999.2923.</p>
+<p style="margin-top: 30px;">Cảm ơn bạn đã liên hệ với chúng tôi, mong nhận được những yêu cầu quảng cáo khác của bạn!</p>
+</body>
+</html>

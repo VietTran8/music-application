@@ -29,7 +29,8 @@ public class FileServiceImpl implements IFileService {
                 .upload(multipartFile.getBytes(),
                         Map.of("public_id", UUID.randomUUID().toString(),
                                 "folder", folder.getFolderName(),
-                                "resource_type", "auto"))
+                                "resource_type", "auto",
+                                "type", "upload"))
                 .get("url")
                 .toString();
     }
@@ -54,7 +55,7 @@ public class FileServiceImpl implements IFileService {
         if(publicId != null){
             return cloudinary.uploader()
                     .destroy(publicId,  Map.of(
-                            "resource_type", folder.equals(EUploadFolder.FOLDER_AUDIO) ? "video" : "image"
+                            "resource_type", folder.getResourceType()
                     )).get("result").equals("ok");
         }
         return false;

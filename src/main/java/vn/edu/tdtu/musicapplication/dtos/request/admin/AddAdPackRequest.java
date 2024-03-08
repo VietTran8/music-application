@@ -1,4 +1,4 @@
-package vn.edu.tdtu.musicapplication.dtos.request;
+package vn.edu.tdtu.musicapplication.dtos.request.admin;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +15,6 @@ public class AddAdPackRequest {
     private Integer discount; //Don vi phan tram
     private String description;
     private String specialFeatures;
-    private String unit;
-    private String type;
+    private String unit; //PER_MONTH - PER_7_DAYS - PER_3_DAYS
+    private String type; //TYPE_PREMIUM - TYPE_NORMAL - TYPE_MEDIUM
 }

@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.tdtu.musicapplication.enums.EPaymentMethod;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -20,7 +22,7 @@ public class UserPackageBought {
     private long id;
     private LocalDateTime expirationDate;
     private LocalDateTime boughtDate;
-    private String paymentMethod;
+    private EPaymentMethod paymentMethod;
     private BigDecimal amount;
     private Boolean status;
     private Boolean isLatest;
@@ -30,4 +32,6 @@ public class UserPackageBought {
     @ManyToOne
     @JoinColumn(name = "packageId")
     private Package mPackage;
+    @OneToMany(mappedBy = "packageProduct")
+    private List<Bill> bills;
 }

@@ -9,6 +9,7 @@ import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.AddUserPackageBoughtRequest;
 import vn.edu.tdtu.musicapplication.dtos.request.admin.AddPackageRequest;
 import vn.edu.tdtu.musicapplication.dtos.response.CreatePaymentResponse;
+import vn.edu.tdtu.musicapplication.enums.EPaymentMethod;
 import vn.edu.tdtu.musicapplication.mappers.request.AddPackageRequestMapper;
 import vn.edu.tdtu.musicapplication.models.Package;
 import vn.edu.tdtu.musicapplication.models.User;
@@ -32,6 +33,7 @@ public class PackageService {
     private final AddPackageRequestMapper addPackageRequestMapper;
     private final UserService userService;
     private final VnPayService vnPayService;
+    private static final String RETURN_URL = "http://localhost:8080/payment/return/";
 
     public Package findById(Long id){
         return packageRepository.findByIdAndActive(id, true).orElse(null);
@@ -176,7 +178,7 @@ public class PackageService {
                         userPackageBought.setStatus(false);
                         userPackageBought.setUser(foundUser);
                         userPackageBought.setAmount(requestBody.getAmount());
-                        userPackageBought.setPaymentMethod(requestBody.getPaymentMethod());
+                        userPackageBought.setPaymentMethod(EPaymentMethod.METHOD_VNPAY);
                         userPackageBoughtRepository.save(userPackageBought);
                     }else{
                         userPackageBought = foundUser.getPackages().stream().filter(
@@ -184,7 +186,7 @@ public class PackageService {
                         ).toList().get(0);
                     }
                     try {
-                        String paymentUrl = vnPayService.createPayment(userPackageBought.getAmount().longValue(), ipAddress, userPackageBought.getId());
+                        String paymentUrl = vnPayService.createPayment(userPackageBought.getAmount().longValue(), RETURN_URL, ipAddress, userPackageBought.getId());
                         CreatePaymentResponse data = new CreatePaymentResponse();
                         data.setUrl(paymentUrl);
 

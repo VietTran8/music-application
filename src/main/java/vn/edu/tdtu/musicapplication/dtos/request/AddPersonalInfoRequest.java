@@ -1,6 +1,5 @@
 package vn.edu.tdtu.musicapplication.dtos.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,17 +12,13 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddSongRequest {
-    //YYYY-MM-DD
+public class AddPersonalInfoRequest {
+    private String fullName;
     @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
-    private LocalDateTime releaseDate;
-    private Boolean isPremium;
-    private String name;
-    private String lyrics;
-    private String audioUrl;
-    private String imageUrl;
-    private List<Long> artistIds;
-    private Long albumId;
-    private Long genreId;
-    private String author;
+    private LocalDateTime birthDate;
+    private String nation;
+    private String phoneNumber;
+    private String bankAccountName;
+    private String bankAccountNumber;
+    private List<AddSocialNetRequest> socialNets;
 }

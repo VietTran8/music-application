@@ -71,6 +71,7 @@ public class MinimizedSongMapper implements Mapper<Song, MinimizedSong> {
         minimizedSong.setIsPremium(object.getIsPremium());
         minimizedSong.setReleaseDate(object.getReleaseDate());
         minimizedSong.setArtists(minimizedArtistInfos);
+        minimizedSong.setAuthor(object.getAuthor());
 
         List<User> users = object.getUsers();
         if(users != null){

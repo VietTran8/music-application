@@ -1,12 +1,14 @@
 package vn.edu.tdtu.musicapplication.models.artist_request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.edu.tdtu.musicapplication.models.User;
+import vn.edu.tdtu.musicapplication.utils.CustomLocalDateTimeDeserializer;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,12 +28,10 @@ public class PersonalInfo {
     private String phoneNumber;
     private String bankAccountName;
     private String bankAccountNumber;
-    @OneToOne(mappedBy = "personalInfo")
+    @OneToOne(mappedBy = "personalInfo", cascade = CascadeType.ALL)
     @JsonIgnore
     private ArtistInfo artistInfo;
-    @OneToOne(mappedBy = "personalInfo")
+    @OneToMany(mappedBy = "personalInfo", cascade = CascadeType.ALL)
     @JsonIgnore
-    private User user;
-    @OneToMany(mappedBy = "personalInfo")
     private List<SocialNetwork> socialNetworks;
 }

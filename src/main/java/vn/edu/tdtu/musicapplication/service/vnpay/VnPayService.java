@@ -12,7 +12,7 @@ import java.util.*;
 
 @Service
 public class VnPayService {
-    public String createPayment(long amount, String remoteAddress, Long userPackageId) throws UnsupportedEncodingException {
+    public String createPayment(long amount, String returnUrl, String remoteAddress, Long id) throws UnsupportedEncodingException {
         amount *= 100;
 
         String vnp_TxnRef = VnPayConfig.getRandomNumber(8);
@@ -26,7 +26,7 @@ public class VnPayService {
         vnp_Params.put("vnp_BankCode", "");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
-        vnp_Params.put("vnp_ReturnUrl", "http://localhost:8080/payment/return/" + userPackageId);
+        vnp_Params.put("vnp_ReturnUrl", returnUrl + id);
         vnp_Params.put("vnp_IpAddr", remoteAddress);
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");

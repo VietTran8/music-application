@@ -1,7 +1,7 @@
 package vn.edu.tdtu.musicapplication.mappers.request;
 
 import org.springframework.stereotype.Component;
-import vn.edu.tdtu.musicapplication.dtos.request.AddAdPackRequest;
+import vn.edu.tdtu.musicapplication.dtos.request.admin.AddAdPackRequest;
 import vn.edu.tdtu.musicapplication.enums.EAdType;
 import vn.edu.tdtu.musicapplication.enums.EAdUnit;
 import vn.edu.tdtu.musicapplication.mappers.Mapper;

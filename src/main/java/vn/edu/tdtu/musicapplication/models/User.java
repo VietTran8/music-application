@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.edu.tdtu.musicapplication.models.advertisement.Advertisement;
+import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistRequest;
 import vn.edu.tdtu.musicapplication.models.artist_request.PersonalInfo;
 
@@ -26,10 +27,10 @@ public class User {
     private String password;
     private String username;
 
-    //personal info = null -> is not an artist
+    //artistInfo = null -> is not an artist
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "personalInfoId")
-    private PersonalInfo personalInfo;
+    @JoinColumn(name = "artistInfoId")
+    private ArtistInfo artistInfo;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "User_Role",
@@ -59,4 +60,6 @@ public class User {
     private List<UserPackageBought> packages;
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Playlist> playlists;
+    @OneToMany(mappedBy = "user")
+    private List<Bill> bills;
 }
