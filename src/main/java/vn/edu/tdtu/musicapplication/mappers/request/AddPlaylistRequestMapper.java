@@ -3,6 +3,7 @@ package vn.edu.tdtu.musicapplication.mappers.request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.edu.tdtu.musicapplication.dtos.request.AddPlaylistRequest;
+import vn.edu.tdtu.musicapplication.dtos.request.RenamePlaylistRequest;
 import vn.edu.tdtu.musicapplication.mappers.Mapper;
 import vn.edu.tdtu.musicapplication.models.Playlist;
 import vn.edu.tdtu.musicapplication.models.Song;
@@ -34,12 +35,9 @@ public class AddPlaylistRequestMapper implements Mapper<Playlist, AddPlaylistReq
         return null;
     }
 
-    public void bindFromDto(Playlist playlist, AddPlaylistRequest dto) {
+    public void bindFromDto(Playlist playlist, RenamePlaylistRequest dto) {
         playlist.setActive(true);
         playlist.setTitle(dto.getTitle());
         playlist.setCreatedDate(LocalDateTime.now());
-
-        List<Song> songs = songService.findAllByIds(dto.getSongIds());
-        playlist.setSongs(songs);
     }
 }

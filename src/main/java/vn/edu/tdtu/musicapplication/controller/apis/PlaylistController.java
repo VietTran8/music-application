@@ -8,6 +8,7 @@ import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.AddPlaylistRequest;
 import vn.edu.tdtu.musicapplication.dtos.request.AddSongToPlaylistRequest;
 import vn.edu.tdtu.musicapplication.dtos.request.DeleteSongFromPlaylistRequest;
+import vn.edu.tdtu.musicapplication.dtos.request.RenamePlaylistRequest;
 import vn.edu.tdtu.musicapplication.service.PlaylistService;
 
 import java.security.Principal;
@@ -40,9 +41,9 @@ public class PlaylistController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
-    @PostMapping("/update/{id}")
-    public ResponseEntity<?> updatePlaylist(@PathVariable("id") Long id, @RequestBody AddPlaylistRequest requestBody){
-        BaseResponse<?> response = playlistService.updatePlaylist(id, requestBody);
+    @PostMapping("/rename/{id}")
+    public ResponseEntity<?> updatePlaylist(Principal principal, @PathVariable("id") Long id, @RequestBody RenamePlaylistRequest requestBody){
+        BaseResponse<?> response = playlistService.updatePlaylist(principal, id, requestBody);
 
         return ResponseEntity.status(response.getCode()).body(response);
     }
@@ -50,6 +51,13 @@ public class PlaylistController {
     @PostMapping("/delete/{id}")
     public ResponseEntity<?> deletePlaylist(@PathVariable("id") Long id){
         BaseResponse<?> response = playlistService.deletePlaylist(id);
+
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @GetMapping("/{id}/songs")
+    public ResponseEntity<?> getSongsFromPlaylist(@PathVariable("id") Long playlistId){
+        BaseResponse<?> response = playlistService.getSongsFromPlaylistResp(playlistId);
 
         return ResponseEntity.status(response.getCode()).body(response);
     }

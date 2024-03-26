@@ -34,4 +34,8 @@ public class UserPackageBought {
     private Package mPackage;
     @OneToMany(mappedBy = "packageProduct")
     private List<Bill> bills;
+
+    public boolean isNotExpired(){
+        return this.getStatus() && this.getExpirationDate().isAfter(LocalDateTime.now());
+    }
 }

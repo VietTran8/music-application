@@ -1,0 +1,96 @@
+<input type="hidden" id="playlist-id" th:value="${playlist.getId()}">
+<div style="display: flex; margin: 20px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card" style="margin-left: 20px; padding: 16px; border-radius: 4px; background-color: white;">
+                    <div style="text-align: center;" >
+                        <div th:classappend="${noOfThumbs == 1 ? 'one-frame' : (noOfThumbs == 2 ? 'two-frame' : (noOfThumbs == 3 ? 'three-frame' : (noOfThumbs == 4 ? 'four-frame' : 'one-frame')))}" class="playlist-thumb">
+                            <img th:each="thumb : ${playlist.getThumbnails()}" th:src="${thumb}" th:alt="${noOfThumbs}">
+                            <img th:if="${noOfThumbs == 0}" th:src="@{/img/music-album.png}" th:alt="${noOfThumbs}">
+                        </div>
+                        <h5 style="color: #333; margin: 15px;" th:text="${playlist.getTitle()}"></h5>
+                        <div class="d-flex justify-content-center align-items-center">
+                            <div class="me-1 flex-grow-1 cusor button" id="btn-play-all" style="display: flex; justify-content: center;">
+                                <i class="fa-solid fa-play" style="margin-top: 4px; margin-right: 8px;"></i>
+                                <p style="margin: 0px;">Phát tất cả</p>
+                            </div>
+                            <div class="dropdown">
+                                <div class="button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                </div>
+                                <ul class="dropdown-menu">
+                                    <li data-bs-toggle="modal" data-bs-target="#favourite-songs"><a class="dropdown-item cusor">Thêm bài hát</a></li>
+                                    <li><a class="dropdown-item cusor">Xóa playlist</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+            <div class="col-md-9">
+                <div style="margin-left: 15px; width: 100%; margin-right: 20px;">
+                    <div style="margin-top: 20px; border-radius: 4px;">
+                        <hr style="background-color: rgb(71, 68, 68); height: 2px;">
+
+                        <!-- bài hát -->
+                        <div th:each="song, songStat : ${songs}" style="overflow: visible" class="horizontal-card ds-baihat">
+                            <div style="display: flex; justify-content: center; align-items: center; padding-top: 5px; padding-bottom: 5px;">
+                                <p style="color: rgb(0, 0, 0); margin-left: 8px; margin-top: 14px;" th:text="${songStat.count}"></p>
+                                <img style="width: 50px; height: 50px; margin-left: 12px; object-fit: cover;" th:src="${song.getImageUrl()}" alt="image">
+                                <div style="margin-left: 8px;">
+                                    <h6 style="margin: 0px; color: #000000;">
+                                        <a onclick="loadContent(event, this)" th:href="@{|/song-details?song_id=${song.getId()}|}" th:text="${song.getName()}"></a>
+                                    </h6>
+                                    <p style="margin-bottom: 0px; margin-top: 4px; font-size: smaller" th:text="${song.getArtists().get(0).getArtistName()}"></p>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <div class="button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding-left: 12px">
+                                </div>
+                                <ul class="dropdown-menu song-menu">
+                                    <li th:data-song-id="${song.getId()}" class="delete cusor"><a class="dropdown-item">Xóa khỏi playlist</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end -->
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="favourite-songs" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Chọn nhạc</h5>
+            </div>
+            <div class="modal-body container-fluid">
+                <div style="margin: 20px 20px; border-radius: 4px; padding-top: 12px; padding-bottom: 100px">
+                    <div th:if="${favouriteSongs.size() == 0}" >
+                        <p style="text-align: center">Yêu thích thêm bài hát để thêm vào playlist</p>
+                    </div>
+                    <div th:each="song, songStat : ${favouriteSongs}" style="overflow: visible" class="horizontal-card ds-baihat">
+                        <div style="display: flex; justify-content: center; align-items: center; padding-top: 5px; padding-bottom: 5px;">
+                            <p style="color: rgb(0, 0, 0); margin-left: 8px; margin-top: 14px;" th:text="${songStat.count}"></p>
+                            <img style="width: 50px; height: 50px; margin-left: 12px; object-fit: cover;" th:src="${song.getImageUrl()}" alt="image">
+                            <div style="margin-left: 8px;">
+                                <h6 style="margin: 0px; color: #000000;">
+                                    <a th:text="${song.getName()}"></a>
+                                </h6>
+                                <p style="margin-bottom: 0px; margin-top: 4px; font-size: smaller" th:text="${song.getArtists().get(0).getArtistName()}"></p>
+                            </div>
+                        </div>
+                        <input type="checkbox" th:data-song-id="${song.getId()}" class="choose-song me-2 cusor" style="transform: scale(1.2)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-info" id="add-btn">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>

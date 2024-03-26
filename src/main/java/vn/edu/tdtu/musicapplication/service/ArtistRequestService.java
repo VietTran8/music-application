@@ -87,6 +87,9 @@ public class ArtistRequestService {
                     Role role = roleRepository.findByName(ERole.ROLE_ARTIST).get();
                     artistRequest.getUser().getRoles().add(role);
                     artistRequest.getUser().setArtistInfo(artistRequest.getArtistInfo());
+                    artistRequest.getUser().setUsername(artistRequest.getArtistInfo().getArtistName());
+                    artistRequest.getUser().setAvatar(artistRequest.getArtistInfo().getImage());
+
                     userService.saveUser(artistRequest.getUser());
                 }else{
                     artistRequest.getUser().setArtistInfo(null);

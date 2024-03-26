@@ -109,7 +109,7 @@ public class GenreService {
         return response;
     }
 
-    public BaseResponse<?> getAllGenres(){
+    public BaseResponse<List<MinimizedGenre>> getAllGenres(){
         List<Genre> genres = genreRepository.findByActive(true);
         List<MinimizedGenre> minimizedGenres = new ArrayList<>();
         genres.forEach(genre -> {

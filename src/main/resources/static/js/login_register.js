@@ -27,7 +27,8 @@ function signUp(){
 		data: JSON.stringify({
 			"username": usernameRegister.value,
 			"email": emailRegister.value,
-			"password": passwordRegister.value
+			"password": passwordRegister.value,
+			"imgUrl": ""
 		}),
 		success: (response) => {
 			if(response.status){

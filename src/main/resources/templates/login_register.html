@@ -15,7 +15,7 @@
             <div class="sign-up-info-container">
                 <h1>Tạo tài khoản</h1>
                 <div class="social-container">
-                    <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                    <a th:href="@{/oauth2/authorization/google}" class="social"><i class="fab fa-google-plus-g"></i></a>
                 </div>
                 <span>Hoặc sử dụng email để đăng ký</span>
                 <input id="register-username" type="text" name="username" placeholder="Tên tài khoản" />
@@ -29,7 +29,7 @@
             <form action="/login" method="post">
                 <h1>Đăng nhập</h1>
                 <div class="social-container">
-                    <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                    <a th:href="@{/oauth2/authorization/google}" class="social"><i class="fab fa-google-plus-g"></i></a>
                 </div>
                 <span>Hoặc sử dụng tài khoản của bạn</span>
                 <input type="email" placeholder="Email" name="username"/>

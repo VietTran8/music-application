@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -143,9 +144,13 @@ public class AdPackageService {
     public BaseResponse<?> getAllPackages(){
         List<AdvertisementPackage> packages = adPackRepository.findByActive(true);
 
-        BaseResponse<List<AdvertisementPackage>> response = new BaseResponse<>();
+        Map<EAdType, List<AdvertisementPackage>> data = packages.stream().collect(
+                Collectors.groupingBy(AdvertisementPackage::getType)
+        );
+
+        BaseResponse<Map<EAdType, List<AdvertisementPackage>>> response = new BaseResponse<>();
         response.setMessage("Packages fetched successfully");
-        response.setData(packages);
+        response.setData(data);
         response.setStatus(true);
         response.setCode(HttpServletResponse.SC_OK);
 

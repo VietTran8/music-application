@@ -15,4 +15,6 @@ public class MinimizedPlaylist {
     private String title;
     private LocalDateTime createdDate;
     private List<MinimizedSong> songs;
+    private List<String> thumbnails;
+    private int noOfThumbs;
 }

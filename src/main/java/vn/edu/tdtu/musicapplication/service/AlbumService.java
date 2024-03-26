@@ -1,8 +1,11 @@
 package vn.edu.tdtu.musicapplication.service;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.AddAlbumRequest;
@@ -34,6 +37,12 @@ public class AlbumService {
     private final ArtistService artistService;
     private final SongRepository songRepository;
     private final UserService userService;
+    @Getter
+    private int totalPages = 1;
+
+    public MinimizedAlbum toMinimized(Album album){
+        return minimizedAlbumMapper.mapToDto(album);
+    }
 
     public Album findById(Long id){
         return id != null ? albumRepository.findById(id).orElse(null) : null;
@@ -224,7 +233,7 @@ public class AlbumService {
         return response;
     }
 
-    public BaseResponse<?> getAllAlbumsByArtistId(Long artistId){
+    public BaseResponse<List<MinimizedAlbum>> getAllAlbumsByArtistId(Long artistId){
         ArtistInfo artistInfo = artistService.findById(artistId);
         BaseResponse<List<MinimizedAlbum>> response = new BaseResponse<>();
         response.setCode(HttpServletResponse.SC_BAD_REQUEST);
@@ -243,6 +252,25 @@ public class AlbumService {
             response.setMessage("Albums fetched successfully");
             response.setData(minimizedArtistInfos);
         }
+
+        return response;
+    }
+
+    public BaseResponse<List<MinimizedAlbum>> getAllAlbums(int page, int limit){
+        BaseResponse<List<MinimizedAlbum>> response = new BaseResponse<>();
+
+        List<MinimizedAlbum> minimizedArtistInfos = new ArrayList<>();
+        Page<Album> albums = albumRepository.findByActive(true, PageRequest.of(page - 1, limit));
+        albums.get().forEach(album -> {
+            minimizedArtistInfos.add(minimizedAlbumMapper.mapToDto(album));
+        });
+
+        totalPages = albums.getTotalPages();
+
+        response.setCode(HttpServletResponse.SC_OK);
+        response.setStatus(true);
+        response.setMessage("Albums fetched successfully");
+        response.setData(minimizedArtistInfos);
 
         return response;
     }

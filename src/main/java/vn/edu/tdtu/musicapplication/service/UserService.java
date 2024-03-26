@@ -4,19 +4,26 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.FollowUserRequest;
 import vn.edu.tdtu.musicapplication.dtos.request.RegisterUserRequest;
 import vn.edu.tdtu.musicapplication.dtos.response.FavouriteResponse;
 import vn.edu.tdtu.musicapplication.enums.ERole;
+import vn.edu.tdtu.musicapplication.enums.EUploadFolder;
 import vn.edu.tdtu.musicapplication.models.Follows;
 import vn.edu.tdtu.musicapplication.models.User;
+import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.repository.FollowsRepository;
 import vn.edu.tdtu.musicapplication.repository.UserRepository;
+import vn.edu.tdtu.musicapplication.service.cloudinary.IFileService;
+import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,7 +31,9 @@ public record UserService(
         RoleService roleService,
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
-        FollowsRepository followsRepository
+        FollowsRepository followsRepository,
+        IFileService fileService,
+        PrincipalUtils principalUtils
 ) {
     public Boolean userIsExistsByEmail(String email){
         return userRepository.existsByEmail(email);
@@ -36,6 +45,14 @@ public record UserService(
     public User findByEmail(String email){
         return userRepository.findByEmail(email).orElse(null);
     }
+    public User findByGoogleId(String googleId){
+        return userRepository.findByGoogleIdAndActive(googleId, true).orElse(null);
+    }
+
+    public User findByArtistInfo(ArtistInfo artistInfo){
+        return userRepository.findByArtistInfo(artistInfo).orElse(null);
+    }
+
     public User findByEmailAndActive(String email, Boolean active){
         return userRepository.findByEmailAndActive(email, true).orElse(null);
     }
@@ -45,6 +62,7 @@ public record UserService(
             User newUser = User.builder()
                     .username(registerUserRequest.getUsername())
                     .email(registerUserRequest.getEmail())
+                    .avatar(registerUserRequest.getImgUrl())
                     .active(true)
                     .roles(List.of(roleService.findByName(ERole.ROLE_USER)))
                     .password(passwordEncoder.encode(registerUserRequest.getPassword()))
@@ -64,20 +82,36 @@ public record UserService(
                 .build();
     }
 
+    public List<User> getFollowersByUserId(Long userId)
+    {
+        User foundUser = userRepository.findByIdAndActive(userId, true).orElse(null);
+        if(foundUser != null){
+            List<User> followers = new ArrayList<>();
+            long[] followerIds = followsRepository.findByFollowedId(foundUser.getId()).stream().mapToLong(Follows::getFollowerId).toArray();
+            for(long id : followerIds)
+            {
+                userRepository.findByIdAndActive(id, true).ifPresent(followers::add);
+            }
+
+            return followers;
+        }
+        return new ArrayList<>();
+    }
+
     public BaseResponse<?> followUser(Principal principal, FollowUserRequest request){
         BaseResponse<FavouriteResponse> response = new BaseResponse<>();
         response.setCode(HttpServletResponse.SC_UNAUTHORIZED);
         response.setData(null);
-        response.setMessage("You are not authenticated");
+        response.setMessage("Vui lòng đăng nhập");
         response.setStatus(false);
 
         if(principal != null){
-            User follower = findByEmail(principal.getName());
+            User follower = principalUtils.loadUserFromPrincipal(principal);
             User followed = findByEmail(request.getEmail());
 
             response.setCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
             response.setData(null);
-            response.setMessage("User not found");
+            response.setMessage("Không tìm thấy người dùng");
             response.setStatus(false);
 
             if(followed != null
@@ -95,13 +129,13 @@ public record UserService(
                     if(isFollowed){
                         //unfollow
                         followsRepository.deleteAll(follows);
-                        response.setMessage("Unfollowed user: " + followed.getEmail());
+                        response.setMessage("Đã hủy theo dõi");
                         data.setStatus(false);
                     }else{
                         Follows newFollow = new Follows();
                         newFollow.setFollowedId(followed.getId());
                         newFollow.setFollowerId(follower.getId());
-                        response.setMessage("Followed user: " + followed.getEmail());
+                        response.setMessage("Đã theo dõi");
                         data.setStatus(true);
 
                         followsRepository.save(newFollow);
@@ -116,10 +150,51 @@ public record UserService(
                     response.setCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
                     response.setData(null);
                     response.setStatus(false);
-                    response.setMessage("You can not follow yourself");
+                    response.setMessage("Bạn không thể theo dõi chính bạn");
                 }
             }
         }
+
+        return response;
+    }
+
+    public BaseResponse<?> uploadUserImage(Principal principal, MultipartFile file, String type){
+        BaseResponse<Map<String, Object>> response = new BaseResponse<>();
+        if(principal != null){
+            User user = findByEmail(principal.getName());
+            try{
+                String url = fileService.uploadFile(file, EUploadFolder.FOLDER_IMG);
+                if(type.equals("avatar"))
+                    user.setAvatar(url);
+                else
+                    user.setHeaderImg(url);
+
+                saveUser(user);
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("url", url);
+
+                response.setMessage("Image updated successfully!");
+                response.setData(data);
+                response.setStatus(true);
+                response.setCode(HttpServletResponse.SC_OK);
+
+                return response;
+            }catch (IOException ex){
+                log.error(ex.getMessage());
+                response.setMessage("Something went wrong: " + ex.getMessage());
+            }
+            response.setData(null);
+            response.setStatus(false);
+            response.setCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return response;
+        }
+
+        response.setMessage("You are not authenticated!");
+        response.setData(null);
+        response.setStatus(false);
+        response.setCode(HttpServletResponse.SC_UNAUTHORIZED);
 
         return response;
     }

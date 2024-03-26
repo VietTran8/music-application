@@ -17,6 +17,7 @@ import vn.edu.tdtu.musicapplication.models.UserPackageBought;
 import vn.edu.tdtu.musicapplication.repository.PackageRepository;
 import vn.edu.tdtu.musicapplication.repository.UserPackageBoughtRepository;
 import vn.edu.tdtu.musicapplication.service.vnpay.VnPayService;
+import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
@@ -33,6 +34,7 @@ public class PackageService {
     private final AddPackageRequestMapper addPackageRequestMapper;
     private final UserService userService;
     private final VnPayService vnPayService;
+    private final PrincipalUtils principalUtils;
     private static final String RETURN_URL = "http://localhost:8080/payment/return/";
 
     public Package findById(Long id){
@@ -122,7 +124,7 @@ public class PackageService {
         return response;
     }
 
-    public BaseResponse<?> getAllPackages(){
+    public BaseResponse<List<Package>> getAllPackages(){
         List<Package> packages = packageRepository.findByActive(true);
 
         BaseResponse<List<Package>> response = new BaseResponse<>();
@@ -162,8 +164,7 @@ public class PackageService {
         response.setStatus(false);
 
         if(principal != null){
-            String email = principal.getName();
-            User foundUser = userService.findByEmail(email);
+            User foundUser = principalUtils.loadUserFromPrincipal(principal);
 
             response.setMessage("Package not found");
             response.setCode(HttpServletResponse.SC_BAD_REQUEST);
@@ -201,10 +202,23 @@ public class PackageService {
                         response.setCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
                     }
                 }
+            }else{
+                response.setMessage("Chưa đăng nhập!");
+                response.setCode(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setData(null);
+                response.setStatus(true);
             }
         }
 
         return response;
+    }
+
+    public List<UserPackageBought> findUserPackageByUser(User user){
+        return userPackageBoughtRepository
+                .findByUserAndStatus(user, true)
+                .stream()
+                .filter(UserPackageBought::isNotExpired)
+                .toList();
     }
 
     public UserPackageBought findUserPackageById(Long id){

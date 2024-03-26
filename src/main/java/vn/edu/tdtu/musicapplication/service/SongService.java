@@ -10,13 +10,18 @@ import vn.edu.tdtu.musicapplication.dtos.response.FavouriteResponse;
 import vn.edu.tdtu.musicapplication.dtos.response.MinimizedSong;
 import vn.edu.tdtu.musicapplication.mappers.request.AddSongRequestMapper;
 import vn.edu.tdtu.musicapplication.mappers.response.MinimizedSongMapper;
+import vn.edu.tdtu.musicapplication.models.Genre;
 import vn.edu.tdtu.musicapplication.models.Song;
 import vn.edu.tdtu.musicapplication.models.User;
+import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.repository.SongRepository;
+import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +30,11 @@ public class SongService {
     private final AddSongRequestMapper addSongRequestMapper;
     private final MinimizedSongMapper minimizedSongMapper;
     private final UserService userService;
+    private final PrincipalUtils principalUtils;
 
+    public MinimizedSong toMinimized(Song song){
+        return minimizedSongMapper.mapToDto(song);
+    }
     public Song save(Song song){
         return songRepository.save(song);
     }
@@ -42,17 +51,31 @@ public class SongService {
         return response;
     }
 
+    public Map<String, List<MinimizedSong>> findAllSongsGroupByGenre(){
+        List<Song> songs = songRepository.findByActive(true);
+        return songs.stream().filter(song -> song.getGenre() != null)
+                .map(minimizedSongMapper::mapToDto)
+                .collect(Collectors.groupingBy(song -> song.getGenre().getName()));
+    }
+
+    public Map<String, List<MinimizedSong>> findAllSongsByGenre(Genre genre){
+        List<Song> songs = songRepository.findByActiveAndGenre(true, genre);
+        return songs.stream().filter(song -> song.getGenre() != null)
+                .map(minimizedSongMapper::mapToDto)
+                .collect(Collectors.groupingBy(song -> song.getGenre().getName()));
+    }
+
     public BaseResponse<?> favourite(Principal principal, Long songId){
         BaseResponse<FavouriteResponse> response = new BaseResponse<>();
-        response.setMessage("You are not authenticated");
+        response.setMessage("Bạn chưa đăng nhập");
         response.setCode(HttpServletResponse.SC_UNAUTHORIZED);
         response.setData(null);
         response.setStatus(false);
 
         if(principal != null){
             Song foundSong = findById(songId);
-            User foundUser = userService.findByEmail(principal.getName());
-            response.setMessage("Song not found with id: " + songId);
+            User foundUser = principalUtils.loadUserFromPrincipal(principal);
+            response.setMessage("Không tìm thấy nhạc với id: " + songId);
             response.setCode(HttpServletResponse.SC_BAD_REQUEST);
             response.setData(null);
             response.setStatus(false);
@@ -68,7 +91,7 @@ public class SongService {
                 FavouriteResponse favourite = new FavouriteResponse();
                 favourite.setFavourites(foundSong.getUsers().size());
 
-                response.setMessage("Liked this song: " + songId);
+                response.setMessage("Đã thích bài hát!");
                 response.setCode(HttpServletResponse.SC_OK);
                 response.setData(favourite);
                 response.setStatus(true);
@@ -113,11 +136,45 @@ public class SongService {
         return response;
     }
 
-    public BaseResponse<?> getAllSongs(int page, int limit){
+    public BaseResponse<?> addPlaySong(Long songId){
+        Song foundSong = findById(songId);
+        BaseResponse<MinimizedSong> response = new BaseResponse<>();
+        if(foundSong != null && foundSong.getActive()){
+            foundSong.setPlays(foundSong.getPlays() + 1);
+            save(foundSong);
+            response.setCode(HttpServletResponse.SC_OK);
+            response.setStatus(true);
+            response.setData(minimizedSongMapper.mapToDto(foundSong));
+            response.setMessage("Plays added successfully!");
+
+            return response;
+        }
+        response.setCode(HttpServletResponse.SC_BAD_REQUEST);
+        response.setStatus(false);
+        response.setData(null);
+        response.setMessage("Song not found with id: " + songId);
+
+        return response;
+    }
+
+    public BaseResponse<List<MinimizedSong>> getAllSongs(Principal principal, int page, int limit){
         List<MinimizedSong> minimizedSongs = new ArrayList<>();
-        songRepository.findByActive(true, PageRequest.of(page - 1, limit)).forEach(song -> {
-            minimizedSongs.add(minimizedSongMapper.mapToDto(song));
-        });
+        if(principal != null){
+            User foundUser = principalUtils.loadUserFromPrincipal(principal);
+            if(foundUser.getIsPremium()){
+                songRepository.findByActive(true, PageRequest.of(page - 1, limit)).forEach(song -> {
+                    minimizedSongs.add(minimizedSongMapper.mapToDto(song));
+                });
+            }else{
+                songRepository.findByActiveAndIsPremium(true, false, PageRequest.of(page - 1, limit)).forEach(song -> {
+                    minimizedSongs.add(minimizedSongMapper.mapToDto(song));
+                });
+            }
+        }else{
+            songRepository.findByActiveAndIsPremium(true, false, PageRequest.of(page - 1, limit)).forEach(song -> {
+                minimizedSongs.add(minimizedSongMapper.mapToDto(song));
+            });
+        }
 
         BaseResponse<List<MinimizedSong>> response = new BaseResponse<>();
         response.setCode(HttpServletResponse.SC_OK);
@@ -126,6 +183,15 @@ public class SongService {
         response.setData(minimizedSongs);
 
         return response;
+    }
+
+    public List<MinimizedSong> getAllSongsForView(int page, int limit){
+        List<MinimizedSong> minimizedSongs = new ArrayList<>();
+        songRepository.findByActive(true, PageRequest.of(page - 1, limit)).forEach(song -> {
+            minimizedSongs.add(minimizedSongMapper.mapToDto(song));
+        });
+
+        return minimizedSongs;
     }
 
     public BaseResponse<?> getSongById(Long id){

@@ -5,12 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.tdtu.musicapplication.enums.EPackageType;
 import vn.edu.tdtu.musicapplication.models.advertisement.Advertisement;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistRequest;
 import vn.edu.tdtu.musicapplication.models.artist_request.PersonalInfo;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Entity
 @AllArgsConstructor
@@ -24,6 +28,8 @@ public class User {
     private Boolean active;
     private String email;
     private String avatar;
+    private String googleId;
+    private String headerImg;
     private String password;
     private String username;
 
@@ -62,4 +68,22 @@ public class User {
     private List<Playlist> playlists;
     @OneToMany(mappedBy = "user")
     private List<Bill> bills;
+
+    public boolean getIsPremium(){
+        return this.getPackages().stream().anyMatch(UserPackageBought::isNotExpired);
+    };
+
+    public EPackageType getAccountType(){
+        return this.getPackages().stream()
+                .filter(UserPackageBought::isNotExpired)
+                .map(p -> p.getMPackage().getType())
+                .reduce((type1, type2) -> {
+                    if (type1 == EPackageType.TYPE_PREMIUM || type2 == EPackageType.TYPE_PREMIUM) {
+                        return EPackageType.TYPE_PREMIUM;
+                    } else {
+                        return type1;
+                    }
+                })
+                .orElse(null);
+    }
 }

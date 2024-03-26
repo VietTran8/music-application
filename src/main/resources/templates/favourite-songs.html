@@ -1,0 +1,57 @@
+<h5 style="color: #000; margin: 20px 20px">Bài hát yêu thích</h5>
+
+<div style="margin: 20px 20px; border-radius: 4px; padding-top: 12px; padding-bottom: 100px">
+    <div th:each="song, songStat : ${songs}" style="overflow: visible" class="horizontal-card ds-baihat">
+        <div style="display: flex; justify-content: center; align-items: center; padding-top: 5px; padding-bottom: 5px;">
+            <p style="color: rgb(0, 0, 0); margin-left: 8px; margin-top: 14px;" th:text="${songStat.count}"></p>
+            <img style="width: 50px; height: 50px; margin-left: 12px; object-fit: cover;" th:src="${song.getImageUrl()}" alt="image">
+            <div style="margin-left: 8px;">
+                <h6 style="margin: 0px; color: #000000;">
+                    <a onclick="loadContent(event, this)" th:href="@{|/song-details?song_id=${song.getId()}|}" th:text="${song.getName()}"></a>
+                </h6>
+                <p style="margin-bottom: 0px; margin-top: 4px; font-size: smaller" th:text="${song.getArtistInfoList().get(0).getArtistName()}"></p>
+            </div>
+        </div>
+        <div class="dropdown">
+            <div class="button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding-left: 12px">
+            </div>
+            <ul class="dropdown-menu" id="song-menu">
+                <li th:data-song-id="${song.getId()}" class="add-to-playlist cusor" data-bs-toggle="modal" data-bs-target="#add-to-playlist"><a class="dropdown-item">Thêm vào playlist</a></li>
+                <li th:data-song-id="${song.getId()}" class="delete cusor"><a class="dropdown-item">Xóa khỏi yêu thích</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="add-to-playlist" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="m-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="to-playlist" id="new-playlist" checked>
+                        <label class="form-check-label" for="new-playlist">
+                            Tạo playlist mới
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="to-playlist" id="exists-playlist">
+                        <label class="form-check-label" for="exists-playlist">
+                            Thêm vào playlist sẵn có
+                        </label>
+                    </div>
+                </div>
+                <div class="m-3">
+                    <input class="form-control my-input" placeholder="Nhập tên playlist" type="text" id="new-playlist-name">
+                    <select class="form-select my-input hide" id="exists-playlist-name">
+                        <option th:each="playlist : ${playlists}" th:value="${playlist.getId()}" th:text="${playlist.getTitle()}"></option>
+                    </select>
+                </div>
+                <div class="m-3 d-flex justify-content-end">
+                    <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                    <div type="button" class="button" id="add">Thêm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

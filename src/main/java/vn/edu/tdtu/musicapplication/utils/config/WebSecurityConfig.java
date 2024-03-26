@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.LogoutConf
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import vn.edu.tdtu.musicapplication.utils.security.CustomOAuthSuccessHandler;
 import vn.edu.tdtu.musicapplication.utils.security.UserDetailServiceImpl;
 
 @Configuration
@@ -18,6 +19,7 @@ import vn.edu.tdtu.musicapplication.utils.security.UserDetailServiceImpl;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final UserDetailServiceImpl userDetailService;
+    private final CustomOAuthSuccessHandler customOAuthSuccessHandler;
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -37,7 +39,7 @@ public class WebSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/home").authenticated()
+                                .requestMatchers("/service/**").authenticated()
                                 .anyRequest().permitAll()
                 ).formLogin(httpSecurityFormLoginConfigurer ->
                         httpSecurityFormLoginConfigurer
@@ -45,6 +47,10 @@ public class WebSecurityConfig {
                                 .defaultSuccessUrl("/home")
                                 .permitAll()
                 )
+                .oauth2Login(loginConfigurer -> {
+                    loginConfigurer.loginPage("/login")
+                            .successHandler(customOAuthSuccessHandler);
+                })
                 .logout(LogoutConfigurer::permitAll)
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
                         httpSecurityExceptionHandlingConfigurer.accessDeniedPage("/403"));

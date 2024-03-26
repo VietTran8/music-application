@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org">
+    <head th:replace="~{fragments::html_head}"></head>
+    <body>
+    <div class="container-fluid position-relative d-flex p-0">
+        <div th:replace="~{fragments::spinner}"></div>
+        <div th:replace="~{fragments::sidebar}"></div>
+
+        <div class="content" style="background-color: #f0f2f5;">
+            <div th:replace="~{fragments::ads}"></div>
+            <nav th:replace="~{fragments::navbar}"></nav>
+
+            <div id="root">
+            </div>
+
+        </div>
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top" style="margin-bottom: 30px"><i
+                class="bi bi-arrow-up"></i></a>
+    </div>
+    <div th:replace="~{fragments::music-player}"></div>
+    <div th:replace="~{fragments::libraries}"></div>
+    </body>
+</html>

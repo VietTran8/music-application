@@ -1,0 +1,78 @@
+<!--<div style="margin-top: 20px; margin-left: 30px;">-->
+<!--    <div class="dropdown">-->
+<!--        <button class="btn btn-success dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+<!--            Thể loại-->
+<!--        </button>-->
+<!--        <div class="dropdown-menu" aria-labelledby="categoryDropdown">-->
+<!--            <a class="dropdown-item" href="#">1</a>-->
+<!--            <a class="dropdown-item" href="#">2</a>-->
+<!--            <a class="dropdown-item" href="#">3</a>-->
+<!--            <a class="dropdown-item" href="#">4</a>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<div style="margin: 20px; padding-bottom: 100px">
+    <div>
+        <div class="select-box">
+            <div class="options-container">
+                <div class="option">
+                    <input
+                            type="radio"
+                            class="radio"
+                            name="genres"
+                    />
+                </div>
+
+                <div onclick="loadContent(event, this)" th:href="@{|genres?genre_id=${genre.getId()}|}" th:each="genre : ${genres}" class="option">
+                    <input type="radio" class="radio" th:id="${genre.getId()}" th:value="${genre.getName()}" name="genres"/>
+                    <label th:for="${genre.getId()}" th:text="${genre.getName()}"></label>
+                </div>
+            </div>
+
+            <div class="selected" th:text="${selected}"></div>
+
+            <div class="search-box">
+                <input type="text" placeholder="Tìm kiếm..." />
+            </div>
+        </div>
+    </div>
+
+    <div th:each="genreGroup : ${genreGroups}">
+        <div style="margin-top: 20px;">
+            <h5 style="color: #000; margin-left: 15px;" th:text="${genreGroup.key}"></h5>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div th:each="song: ${genreGroup.value}" class="col-lg-2 col-md-4 col-sm-6" style="margin-bottom: 16px;">
+                    <div class="card"
+                         style="background-color: white; border-radius: 4px;">
+                        <div style="height: 160px">
+                            <img class="card-img-top" style="object-fit: cover; height: 100%"
+                                 th:src="${song.getImageUrl()}"
+                                 alt="card image">
+                            <div th:if="${!song.getIsPremium()} or ${canPlay}" class="play-invoker">
+                                <div class="play-btn" th:data-song-id="${song.getId()}">
+                                    <i class="fa-solid fa-play" style="font-size: 30px"></i>
+                                </div>
+                            </div>
+                            <div th:if="${song.getIsPremium()} and ${!canPlay}" class="play-invoker">
+                                <a href="/service/premium" target="_blank" class="buy-pre-btn cusor">Nâng cấp</a>
+                            </div>
+                            <div th:if="${song.getIsPremium()}" class="premium-tag-bg">
+                                <i class="fa-solid fa-crown premium-text premium"></i>
+                            </div>
+                        </div>
+                        <div class="card-body cusor">
+                            <a onclick="loadContent(event, this)" th:href="@{|/song-details?song_id=${song.getId()}|}">
+                                <h6 class="card-title ellipsis">
+                                    <span th:text="${song.getName()}"></span>
+                                </h6>
+                            </a>
+                            <p class="card-text" style="font-size: 12px;" th:text="${song.getArtists() != null ? song.getArtists().get(0).getArtistName() : ''}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

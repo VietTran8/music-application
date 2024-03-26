@@ -1,11 +1,101 @@
-<!DOCTYPE html>
-<html lang="en"
-xmlns:th="https://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
-  Homepage
-</body>
-</html>
+
+<div style="margin: 20px; padding-bottom: 100px">
+    <div style="margin-top: 20px; margin-bottom: 20px;">
+        <h5 style="color: #000; margin-left: 15px;">Bài hát</h5>
+    </div>
+    <div class="container-fluid">
+        <!--Item-->
+        <div class="row">
+            <div th:each="song: ${songs}" class="col-lg-2 col-md-4 col-sm-6" style="margin-bottom: 16px;">
+                <div class="card"
+                     style="background-color: white; border-radius: 4px;">
+                    <div style="height: 160px">
+                        <img class="card-img-top" style="object-fit: cover; height: 100%"
+                             th:src="${song.getImageUrl()}"
+                             alt="card image">
+                        <div th:if="${!song.getIsPremium()} or ${canPlay}" class="play-invoker">
+                            <div class="play-btn" th:data-song-id="${song.getId()}">
+                                <i class="fa-solid fa-play" style="font-size: 30px"></i>
+                            </div>
+                        </div>
+                        <div th:if="${song.getIsPremium()} and ${!canPlay}" class="play-invoker">
+                            <a href="/service/premium" target="_blank" class="buy-pre-btn cusor">Nâng cấp</a>
+                        </div>
+                        <div th:if="${song.getIsPremium()}" class="premium-tag-bg">
+                            <i class="fa-solid fa-crown premium-text premium"></i>
+                        </div>
+                    </div>
+                    <div class="card-body cusor">
+                        <a onclick="loadContent(event, this)" th:href="@{|/song-details?song_id=${song.getId()}|}">
+                            <h6 class="card-title ellipsis">
+                                <span th:text="${song.getName()}"></span>
+                            </h6>
+                        </a>
+                        <p class="card-text" style="font-size: 12px;" th:text="${song.getArtists() != null ? song.getArtists().get(0).getArtistName() : ''}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="see-more-container">
+            <a onclick="loadContent(event, this)" th:href="@{/genres}" class="button t-light">Xem thêm</a>
+        </div>
+    </div>
+    <div style="margin-top: 20px;">
+        <h5 style="color: #000; margin: 0 0 20px 15px">Album</h5>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:each="album : ${albums}" class="col-lg-2 col-md-4 col-sm-6" style="margin-bottom: 16px;">
+                <div class="card cusor"
+                     style="background-color: white; border-radius: 4px;">
+                    <div style="height: 160px">
+                        <img class="card-img-top" style="object-fit: cover; height: 160px"
+                             th:src="${album.getImageUrl()}"
+                             alt="Image">
+                        <span th:text="${album.getArtist()}" class="artist-badge"></span>
+                    </div>
+                    <div class="card-body">
+                        <h6 th:text="${album.getTitle()}" class="card-title"></h6>
+                        <p th:text="${album.getNoOfSongs()} + ' bài hát'" class="card-text" style="font-size: 12px;">10 bai hat</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="see-more-container">
+            <a onclick="loadContent(event, this)" th:href="@{/albums}" class="button t-light">Xem thêm</a>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h5 style="color: #000;  margin: 0 0 20px 15px">Ca sĩ</h5>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:each="artist : ${artists}" class="col-lg-2 col-md-4 col-sm-6" style="margin-top: 16px;">
+                <div style="display:flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 50px;" class="cusor">
+                    <div style="width: 150px; height: 150px; position: relative">
+                        <img style="border-radius: 50%; object-fit: cover; width: 150px; height: 150px"
+                             th:src="${artist.getImage()}" alt="">
+                        <a onclick="loadContent(event, this)" th:href="@{|/artist-details?artist_id=${artist.getId()}|}" class="artist-action-bg">
+                            <div class="open-btn">
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 30px"></i>
+                            </div>
+                        </a>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h6 style="color: #000000; font-size: 15px;">
+                            <span th:text="${artist.getArtistName()}"></span>
+                            <i th:if="!${artist.isCreatedByAdmin()}" class="bi bi-patch-check-fill t-info ms-1"></i>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="see-more-container">
+            <a onclick="loadContent(event, this)" th:href="@{/artists}" class="button t-light">Xem thêm</a>
+        </div>
+        <!-- end row -->
+    </div>
+</div>
+
+</div>

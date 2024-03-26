@@ -23,9 +23,12 @@ public class Song {
     private LocalDateTime releaseDate;
     private Boolean isPremium;
     private String name;
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String lyrics;
     private String audioUrl;
     private String imageUrl;
+    private int plays;
     private String author;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -34,7 +37,7 @@ public class Song {
             inverseJoinColumns = @JoinColumn(name = "artistInfoId")
     )
     private List<ArtistInfo> artistInfoList;
-    @ManyToMany(mappedBy = "favouriteSongs")
+    @ManyToMany(mappedBy = "favouriteSongs", fetch = FetchType.EAGER)
     private List<User> users;
     @ManyToMany(mappedBy = "songs")
     private List<Playlist> playlists;
@@ -44,4 +47,7 @@ public class Song {
     @ManyToOne
     @JoinColumn(name = "genreId")
     private Genre genre;
+    public int getFavoritesCount(){
+        return this.getUsers() != null ? this.getUsers().size() : 0;
+    }
 }

@@ -1,0 +1,27 @@
+<h5 style="color: #000; margin: 20px 20px">Playlist của tôi</h5>
+<div style="margin: 20px 20px; border-radius: 4px; padding-top: 12px; padding-bottom: 100px">
+    <div th:each="playlist, iterStat : ${playlists}" class="horizontal-card ds-baihat" style="overflow: visible;">
+        <div style="display: flex; justify-content: center; align-items: center; padding-top: 5px; padding-bottom: 5px;">
+            <p style="color: rgb(0, 0, 0); margin-left: 8px; margin-top: 14px;" th:text="${iterStat.count}"></p>
+            <div th:classappend="${playlist.getNoOfThumbs() == 1 ? 'one-frame' : (playlist.getNoOfThumbs() == 2 ? 'two-frame' : (playlist.getNoOfThumbs() == 3 ? 'three-frame' : (playlist.getNoOfThumbs() == 4 ? 'four-frame' : 'one-frame')))}" class="playlist-thumb-sm">
+                <img th:each="thumb : ${playlist.getThumbnails()}" th:src="${thumb}" th:alt="${playlist.getNoOfThumbs()}">
+                <img th:if="${playlist.getNoOfThumbs() == 0}" th:src="@{/img/music-album.png}" th:alt="${playlist.getNoOfThumbs()}">
+            </div>
+            <div style="margin-left: 8px;">
+                <h6 class="card-title" style="margin: 0px;">
+                    <a onclick="loadContent(event, this)" th:href="@{|/playlist-details?playlist_id=${playlist.getId()}|}" th:text="${playlist.getTitle()}"></a>
+                </h6>
+                <p style="font-size: small; margin-bottom: 0px; color: #3f3f3f; margin-top: 4px;" th:text="${playlist.getSongs().size() + ' bài hát'}"></p>
+            </div>
+        </div>
+        <div class="dropdown">
+            <div class="button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding-left: 12px">
+            </div>
+            <ul class="dropdown-menu" id="playlist-menu">
+                <li th:data-playlist-id="${playlist.getId()}" class="rename cusor"><a class="dropdown-item">Đổi tên</a></li>
+                <li th:data-playlist-id="${playlist.getId()}" class="delete cusor"><a class="dropdown-item">Xóa playlist</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- end -->

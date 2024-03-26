@@ -15,4 +15,6 @@ public class MinimizedAlbum {
     private String description;
     private String title;
     private String imageUrl;
+    private int noOfSongs;
+    private String artist;
 }

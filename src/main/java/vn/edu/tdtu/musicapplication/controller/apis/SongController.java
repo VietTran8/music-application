@@ -38,12 +38,19 @@ public class SongController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
+    @PostMapping("/add-plays/{id}")
+    public ResponseEntity<?> addSongPlays(@PathVariable("id") Long id){
+        BaseResponse<?> response = songService.addPlaySong(id);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllSongs(
+            Principal principal,
             @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit
     ){
-        BaseResponse<?> response = songService.getAllSongs(page, limit);
+        BaseResponse<?> response = songService.getAllSongs(principal, page, limit);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 

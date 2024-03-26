@@ -1,5 +1,7 @@
 package vn.edu.tdtu.musicapplication.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import vn.edu.tdtu.musicapplication.models.Album;
@@ -11,4 +13,5 @@ import java.util.List;
 public interface AlbumRepository extends JpaRepository<Album, Long> {
     List<Album> findByActiveAndArtistInfo(Boolean active, ArtistInfo artistInfo);
     List<Album> findByTitleContainingIgnoreCase(String title);
+    Page<Album> findByActive(Boolean active, Pageable pageable);
 }

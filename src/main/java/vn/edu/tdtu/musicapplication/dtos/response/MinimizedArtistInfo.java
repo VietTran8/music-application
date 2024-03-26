@@ -11,4 +11,5 @@ public class MinimizedArtistInfo {
     private long id;
     private String artistName;
     private String image;
+    private boolean createdByAdmin;
 }

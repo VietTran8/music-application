@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>DarkPan - Bootstrap 5 Admin Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet"> 
+    
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .modal-backdrop {
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid position-relative d-flex p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+
+        <!-- Sidebar Start -->
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar">
+                <a href="index.html" class="navbar-brand mx-4 mb-3">
+                    <img src="img/logo.png" alt="" style="width: 90%; object-fit: cover;">
+                </a>
+                <div class="navbar-nav w-100">
+                    <a href="index.html" class="nav-item nav-link active" style="font-size: 15px;"><i class="fa-solid fa-house" style="color: #0d0d0d;"></i>  Khám phá</a>        
+                    <a href="albums.html" class="nav-link" style="font-size: 15px;"><i class="fa-solid fa-list-ul" style="color: #0d0d0d;"></i>  Album</a>
+                    <a href="artists.html" class="nav-item nav-link" style="font-size: 15px;"><i class="fa-solid fa-microphone" style="color: #0d0d0d;"></i>  Nghệ sĩ</a>
+                    <a href="genres.html" class="nav-item nav-link" style="font-size: 15px;"><i class="fa-solid fa-folder" style="color: #0d0d0d;"></i>  Thể loại</a>
+                    <hr style="background-color: rgb(71, 68, 68); height: 2px;">
+                    <div style="text-align: center; border-radius: 10px; margin: 8px; width: 170px;" class="cusor">
+                        <img style="width: 100%; height: 105px; object-fit: cover; margin-left: 10px;" src="https://phylodiversity.net/wp-content/uploads/2023/08/image4-4.png" alt="">
+                    </div>
+                    <hr style="background-color: rgb(71, 68, 68); height: 2px;">
+                    <div style="text-align: center; border-radius: 10px; margin: 8px; padding: 8px; background: linear-gradient(to right, #511ded, #ef4ccf)" class="cusor">
+                        <p style="color: white; font-size: small; padding: 6px;">Nghe nhạc thả ga cùng kho nhạc premium<p>
+                        <div style="border-radius: 20px; background-color: yellow; text-align: center; padding: -4px;">
+                            <p style="color: black";>Nâng cấp tài khoản</p>
+                        </div>
+                    </div>
+                    <hr style="background-color: rgb(71, 68, 68); height: 2px;">
+                    <a href="favourite-songs.html" class="nav-item nav-link" style="font-size: 15px;"><i class="fa-solid fa-heart" style="color: #0d0d0d;"></i>  Bài hát yêu thích</a>
+                    <a href="following-artists.html" class="nav-item nav-link" style="font-size: 15px;"><i class="fa-solid fa-users" style="color: #0c0d0d;"></i>  Nghệ sĩ theo dõi</a>
+                    <a href="favourite-album.html" class="nav-link" style="font-size: 15px;"><i class="fa-solid fa-headset" style="color: #0c0d0d;"></i>  Albym yêu thích</a>
+                    <a href="my-playlist.html" class="nav-link" style="font-size: 15px;"><i class="fa-solid fa-forward-fast" style="color: #000000;"></i>  Playlist của tôi</a>
+
+                    <hr style="background-color: rgb(71, 68, 68); height: 2px;">
+                    <div class="cusor" style="text-align: center; background-color: green; border-radius: 20px; margin: 8px; padding: 8px;">
+                        <p style="color: white; margin: 0px;">+ Tạo playlist mới</p>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <!-- Sidebar End -->
+        <div id="overlay" onclick="hideAllDivs()"></div>
+        <div style="z-index: 9999; position: fixed; top: 100px; display: inline; right: 270px;"
+            class="Premium-advert">
+            <img style="width: 800px; height: 400px;"
+                src="https://www.beltroad-initiative.com/wp-content/uploads/2023/10/Ca-cuoc-Eubet.jpg" alt="">
+            <i class="fa-solid fa-delete-left advert-icon" onclick="hideDiv()" style="color: #ffffff;"></i>
+        </div>
+
+        <div style="z-index: 9999; position: fixed; bottom: 60px; display: inline; right: 380px;"
+            class="Medium-advert">
+            <img style="width: 600px; height: 110px;"
+                src="https://www.topck008.com/eap/tt/2_db20c536-e690-40be-9e45-77b02b284b7e.png" alt="">
+            <i class="fa-solid fa-delete-left advert-icon" onclick="hideDiv2()" style="color: #ffffff;"></i>
+        </div>
+
+        <!-- Content Start -->
+        <div class="content" style="background-color: #f0f2f5;">
+            <!-- Navbar Start -->
+            <nav class="navbar navbar-expand navbar-dark sticky-top px-4 py-2" style="background-color: #333;">
+                <a href="#" class="sidebar-toggler flex-shrink-0">
+                    <i class="fa-solid fa-bars" style="color: #000000;"></i>
+                </a>
+                <form class="d-none d-md-flex ms-4">
+                    <input class="form-control bg-white border-0" type="search" placeholder="Search">
+                </form>
+                <div class="navbar-nav align-items-center ms-auto">
+                    <div style="text-align: center; background-color: rgb(47, 168, 47); border-radius: 20px; margin: 8px; padding: 8px 16px;"class="cusor">
+                        <p style="color: white; margin: 0px;">Mua gói Premium</p>
+                    </div>
+                    <div class="dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-user" style="color: #f5f5f5;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-avt">
+                            <li><a class="dropdown-item" href="user-details.html">Tài khoản</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#premiumModal">Gói Premium</a></li>
+                            <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
+                        </ul>
+                    </div>
+                    <!--modal-->
+                    <div class="modal fade" id="premiumModal" tabindex="-1" aria-labelledby="premiumModalLabel"
+                        role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="premiumModalLabel" style="color: #000;">Gói Premium 6
+                                        tháng</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div>
+                                        <p>Mô tả</p>
+                                        <div style="display: flex;">
+                                            <p>Ngày hết hạn: <span>07/09/2003</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div style="display: flex; margin: 20px;">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div style="margin-left: 20px; padding: 16px; border-radius: 4px; background-color: white; box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);">
+                                <div style="text-align: center;" >
+                                    <img style="width: 100%; height: 250px; border-radius: 4px; object-fit: cover;" src="data:image/jpeg;base64,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" alt="">
+                                    <h6 style="color: #0c0d0d; margin-top: 8px;">Tên album</h6>
+                                    <p style="margin-bottom: 8px;">Phát hành bởi: <span>Diệt</span></p>
+                                    <i class="fa-solid fa-heart cusor" style="color: #f00505; font-size: 26px; margin-bottom: 8px;"></i>
+                                    <div class="cusor" style="border-radius: 20px; background-color: green; padding: 8px 14px; display: flex; justify-content: center;">
+                                        <i class="fa-solid fa-play" style="color: #f5f5f5; margin-top: 4px; margin-right: 8px;"></i>
+                                        <p style="margin: 0px; color: white;">Phát tất cả</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div style="margin-left: 15px; width: 100%; margin-right: 20px;">
+                                <div style="margin-top: 20px; border-radius: 4px;">
+            
+                                    <!-- tiêu đề -->
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <p style="color: rgb(0, 0, 0); margin-left: 8px; margin-top: 4px; font-weight: 700;">Bài hát</p>
+                                        <p style="color: rgb(0, 0, 0); margin-right: 8px; margin-top: 4px; font-weight: 700;">Thời gian</p>
+                                    </div>
+                                    <hr style="background-color: rgb(71, 68, 68); height: 2px;">
+            
+                                    <!-- bài hát -->
+                                    <div class="cusor" style="display: flex; justify-content: space-between; margin-bottom: 8px; background-color: #ffffff; border-radius: 8px; padding: 8px; margin-bottom: 8px; box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5); ">
+                                        <div style="display: flex; justify-content: center; align-items: center;">
+                                            <p style="color: rgb(0, 0, 0); margin-left: 8px;">1</p>
+                                            <img style="width: 50px; height: 50px; margin-left: 12px; margin-bottom: 8px; object-fit: cover;" src="https://media.istockphoto.com/id/517188688/vi/anh/phong-c%E1%BA%A3nh-n%C3%BAi-non.jpg?b=1&s=612x612&w=0&k=20&c=OZCJVUTzN3FKKty8kpLsDqufL8zkxHh11fhHl-kwlPM=" alt="">
+                                            <div style="margin-left: 8px;">
+                                                <h6 style="margin: 0px; color: #000000;">See tình</h6>
+                                                <p style="margin-top: 6px; margin-bottom: 0px; color: #424646; font-size: 14px;">Phan Hoàn Diệt</p>
+                                            </div>
+                                        </div>
+                                        <div style="color: rgb(0, 0, 0); margin-right: 8px;">03:05</div>
+                                    </div>
+
+                                    <div class="cusor" style="display: flex; justify-content: space-between; margin-bottom: 8px; background-color: #ffffff; border-radius: 8px; padding: 8px; margin-bottom: 8px; box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);">
+                                        <div style="display: flex; justify-content: center; align-items: center;">
+                                            <p style="color: rgb(0, 0, 0); margin-left: 8px;">2</p>
+                                            <img style="width: 50px; height: 50px; margin-left: 12px; margin-bottom: 8px; object-fit: cover;" src="https://media.istockphoto.com/id/517188688/vi/anh/phong-c%E1%BA%A3nh-n%C3%BAi-non.jpg?b=1&s=612x612&w=0&k=20&c=OZCJVUTzN3FKKty8kpLsDqufL8zkxHh11fhHl-kwlPM=" alt="">
+                                            <div style="margin-left: 8px;">
+                                                <h6 style="margin: 0px; color: #000000;">See tình</h6>
+                                                <p style="margin-top: 6px; margin-bottom: 0px; color: #424646; font-size: 14px;">Phan Hoàn Diệt</p>
+                                            </div>
+                                        </div>
+                                        <div style="color: rgb(0, 0, 0); margin-right: 8px;">03:05</div>
+                                    </div>
+
+                                    <div class="cusor" style="display: flex; justify-content: space-between; margin-bottom: 8px; background-color: #ffffff; border-radius: 8px; padding: 8px; margin-bottom: 8px; box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);">
+                                        <div style="display: flex; justify-content: center; align-items: center;">
+                                            <p style="color: rgb(0, 0, 0); margin-left: 8px;">3</p>
+                                            <img style="width: 50px; height: 50px; margin-left: 12px; margin-bottom: 8px; object-fit: cover;" src="https://media.istockphoto.com/id/517188688/vi/anh/phong-c%E1%BA%A3nh-n%C3%BAi-non.jpg?b=1&s=612x612&w=0&k=20&c=OZCJVUTzN3FKKty8kpLsDqufL8zkxHh11fhHl-kwlPM=" alt="">
+                                            <div style="margin-left: 8px;">
+                                                <h6 style="margin: 0px; color: #000000;">See tình</h6>
+                                                <p style="margin-top: 6px; margin-bottom: 0px; color: #424646; font-size: 14px;">Phan Hoàn Diệt</p>
+                                            </div>
+                                        </div>
+                                        <div style="color: rgb(0, 0, 0); margin-right: 8px;">03:05</div>
+                                    </div>
+
+                                    <div class="cusor" style="display: flex; justify-content: space-between; margin-bottom: 8px; background-color: #ffffff; border-radius: 8px; padding: 8px; margin-bottom: 8px; box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);">
+                                        <div style="display: flex; justify-content: center; align-items: center;">
+                                            <p style="color: rgb(0, 0, 0); margin-left: 8px;">4</p>
+                                            <img style=" width: 50px; height: 50px; margin-left: 12px; margin-bottom: 8px; object-fit: cover;" src="https://media.istockphoto.com/id/517188688/vi/anh/phong-c%E1%BA%A3nh-n%C3%BAi-non.jpg?b=1&s=612x612&w=0&k=20&c=OZCJVUTzN3FKKty8kpLsDqufL8zkxHh11fhHl-kwlPM=" alt="">
+                                            <div style="margin-left: 8px;">
+                                                <h6 style="margin: 0px; color: #000000;">See tình</h6>
+                                                <p style="margin-top: 6px; margin-bottom: 0px; color: #424646; font-size: 14px;">Phan Hoàn Diệt</p>
+                                            </div>
+                                        </div>
+                                        <div style="color: rgb(0, 0, 0); margin-right: 8px;">03:05</div>
+                                    </div>
+                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>              
+                <!-- emd -->
+            </div>
+            
+        </div>
+        <!-- Content End -->
+
+
+        <!-- Back to Top -->
+        <a href="https://www.facebook.com/haonvite" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background-color: #252424; z-index: 999;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+            <div style="display: flex; align-items: center;">
+                <div style="margin-left: 16px;">
+                    <img style="width: 40px; height: 40px; object-fit: cover;"
+                        src="https://bizweb.dktcdn.net/100/438/408/files/phong-canh-dep-o-viet-nam-yody-vn-3.jpg?v=1697610768417"
+                        alt="">
+                </div>
+                <div style="justify-content: center; margin-left: 8px;">
+                    <p style="margin-bottom: 0px; color: #fff;">Am tham ben em</p>
+                    <p style="margin-bottom: 0px; color: #6d6b6b;">Viet</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-evenly; margin-left: 50px;">
+                <i class="fa-solid fa-forward" style="color: #ffffff; margin-right: 16px;"></i>
+                <i class="fa-solid fa-backward-step" style="color: #ffffff; margin-right: 16px;"></i>
+                <div
+                    style="margin-right: 16px; border-radius: 100px; background-color: white; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                    <i class="fa-solid fa-play cusor" style="color: #000000;"></i>
+                </div>
+                <i class="fa-solid fa-forward-step" style="color: #ffffff; margin-right: 16px;"></i>
+                <i class="fa-solid fa-repeat" style="color: #ffffff; margin-right: 16px;"></i>
+                <div style="display: flex; align-items: center; margin-right: 16px;">
+                    <p style="margin-bottom: 0px; color: #fff; margin-right: 8px;">00:21</p>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50" step="1"
+                        style="margin-right: 8px;">
+                    <p style="margin-bottom: 0px; color: #fff;">03:13</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; margin-right: 16px;">
+                <div>
+                    <i class="fa-solid fa-bullhorn" style="color: #fafafa; margin-right: 8px;"></i>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50" step="1">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/chart/chart.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>

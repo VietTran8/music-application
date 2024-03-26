@@ -37,7 +37,7 @@ public class BillService {
 
         Map<String, Object> model = new HashMap<>();
         model.put("billNumber", bill.getId());
-        model.put("name", bill.getUser().getUsername());
+        model.put("name", bill.getUser().getUsername() != null ? bill.getUser().getUsername() : "Unknown");
         model.put("userEmail", bill.getUser().getEmail());
         model.put("createDate", bill.getCreatedDate().format(formatter));
         model.put("paymentMethod", bill.getPaymentMethod());

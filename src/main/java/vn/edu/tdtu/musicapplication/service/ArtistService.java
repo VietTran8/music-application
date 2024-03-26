@@ -1,7 +1,9 @@
 package vn.edu.tdtu.musicapplication.service;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
@@ -22,23 +24,28 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Getter
 public class ArtistService {
     private final ArtistInfoRepository artistInfoRepository;
     private final AdminAddArtistMapper adminAddArtistMapper;
     private final MinimizedArtistInfoMapper minimizedArtistInfoMapper;
+    private int totalPages;
 
     public ArtistInfo findById(Long id){
         return artistInfoRepository.findById(id).orElse(null);
     }
 
     public List<ArtistInfo> findAllByIds(List<Long> ids){
-        List<ArtistInfo> result = new ArrayList<>();
-        artistInfoRepository.findAll().forEach(artist -> {
-            if(ids.contains(artist.getId())){
-                result.add(artist);
-            }
-        });
-        return result;
+        if(ids != null) {
+            List<ArtistInfo> result = new ArrayList<>();
+            artistInfoRepository.findAll().forEach(artist -> {
+                if(ids.contains(artist.getId())){
+                    result.add(artist);
+                }
+            });
+            return result;
+        }
+        return new ArrayList<>();
     }
 
     public ArtistInfo save(ArtistInfo artistInfo){
@@ -119,9 +126,13 @@ public class ArtistService {
         return response;
     }
 
-    public BaseResponse<?> getAllArtists(int page, int limit){
+    public BaseResponse<List<MinimizedArtistInfo>> getAllArtists(int page, int limit){
         List<MinimizedArtistInfo> minimizedArtistInfos = new ArrayList<>();
-        artistInfoRepository.findByActive(true, PageRequest.of(page - 1, limit)).forEach(artist -> {
+
+        Page<ArtistInfo> artistInfoPage = artistInfoRepository.findByActive(true, PageRequest.of(page - 1, limit));
+        totalPages = artistInfoPage.getTotalPages();
+
+        artistInfoPage.get().forEach(artist -> {
             minimizedArtistInfos.add(minimizedArtistInfoMapper.mapToDto(artist));
         });
 
@@ -148,7 +159,7 @@ public class ArtistService {
             response.setData(artistDetails);
             response.setCode(HttpServletResponse.SC_OK);
             response.setStatus(true);
-            response.setMessage("Artist fetched successfully");
+            response.setMessage("Artist fetched successfully!");
         }
 
         return response;

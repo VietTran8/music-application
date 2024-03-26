@@ -29,6 +29,7 @@ public class MinimizedArtistInfoMapper implements Mapper<ArtistInfo, MinimizedAr
         artistInfo.setId(object.getId());
         artistInfo.setImage(object.getImage());
         artistInfo.setArtistName(object.getArtistName());
+        artistInfo.setCreatedByAdmin(object.getPersonalInfo() == null);
 
         return artistInfo;
     }

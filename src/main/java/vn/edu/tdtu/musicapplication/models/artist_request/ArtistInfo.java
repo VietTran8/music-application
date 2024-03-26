@@ -35,8 +35,8 @@ public class ArtistInfo {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "personalInfoId")
     private PersonalInfo personalInfo;
-    @ManyToMany(mappedBy = "artistInfoList")
+    @ManyToMany(mappedBy = "artistInfoList", fetch = FetchType.EAGER)
     private List<Song> songs;
-    @OneToMany(mappedBy = "artistInfo")
+    @OneToMany(mappedBy = "artistInfo", fetch = FetchType.EAGER)
     private List<Album> albums;
 }
