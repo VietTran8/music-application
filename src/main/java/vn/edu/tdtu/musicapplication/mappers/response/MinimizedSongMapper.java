@@ -39,25 +39,26 @@ public class MinimizedSongMapper implements Mapper<Song, MinimizedSong> {
         }
 
         //Genre settings
-        MinimizedGenre minimizedGenre = null;
+        MinimizedGenre minimizedGenre = new MinimizedGenre();
         if(object.getGenre() != null && object.getGenre().getActive()){
-            minimizedGenre = new MinimizedGenre();
             minimizedGenre.setId(object.getGenre().getId());
             minimizedGenre.setDescription((object.getGenre().getDescription()));
             minimizedGenre.setName(object.getGenre().getName());
+        }else{
+            minimizedGenre.setId(-1);
+            minimizedGenre.setDescription("Unknown");
+            minimizedGenre.setName("Khác");
         }
         List<MinimizedArtistInfo> minimizedArtistInfos = new ArrayList<>();
 
         //Artists settings
         object.getArtistInfoList().forEach(artist -> {
-            if(artist.getActive()){
-                MinimizedArtistInfo artistInfo = new MinimizedArtistInfo();
-                artistInfo.setId(artist.getId());
-                artistInfo.setArtistName(artist.getArtistName());
-                artistInfo.setImage(artist.getImage());
+            MinimizedArtistInfo artistInfo = new MinimizedArtistInfo();
+            artistInfo.setId(artist.getId());
+            artistInfo.setArtistName(artist.getArtistName());
+            artistInfo.setImage(artist.getImage());
 
-                minimizedArtistInfos.add(artistInfo);
-            }
+            minimizedArtistInfos.add(artistInfo);
         });
 
         //Song settings

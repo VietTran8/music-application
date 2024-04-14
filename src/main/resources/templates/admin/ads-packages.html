@@ -1,0 +1,280 @@
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <form action="">
+            <button data-bs-toggle="modal" data-bs-target="#addPackageModal" type="button" class="btn btn-success text-white" style="margin-bottom: 20px;">+ Thêm gói quảng cáo</button>
+            <button data-bs-toggle="modal" data-bs-target="#approveAdModal" type="button" class="btn btn-success text-white" style="margin-bottom: 20px;"><i class="fa-solid fa-rectangle-ad"></i> Phê duyệt yêu cầu quảng cáo</button>
+        </form>
+        <table class="table">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Tên gói quảng cáo</th>
+                <th scope="col">Loại</th>
+                <th scope="col">Thời gian</th>
+                <th scope="col">Giá tiền</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <tr th:each="package : ${data.packages}">
+                <th scope="row" class="text-dark" th:text="${package.id}"></th>
+                <td class="text-dark" th:text="${package.name}"></td>
+                <td class="text-dark" th:text="${package.getStringType()}"></td>
+                <td class="text-dark" th:text="${package.getDurationString()}"></td>
+                <td class="text-dark" th:text="${package.price} + ' vnd'"></td>
+                <td>
+                    <button th:data-pack-id="${package.id}" data-bs-target="#editPackageModal" data-bs-toggle="modal" type="button" class="btn btn-warning btn-edit">Sửa</button>
+                    <button th:data-pack-id="${package.id}" type="button" class="btn btn-danger btn-delete">Xóa</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-end">
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/ads-packages?page=${prevPage}|}" aria-label="Previous">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-left-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Trước</span>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, data.totalPages)}" class="page-item"><a class="page-link" th:href="@{|/admin/ads-packages?page=${i}|}" th:text="${i}" >1</a></li>
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/ads-packages?page=${nextPage}|}" aria-label="Next">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-right-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Sau</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add ads package Modal -->
+<div class="modal fade" id="addPackageModal" tabindex="-1" aria-labelledby="addPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addPackageModalLabel">Thêm gói</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="addPackageForm">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="packageName" class="form-label">Tên gói:</label>
+                                    <input type="text" class="form-control" id="packageName" name="packageName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="packageDescription" class="form-label">Mô tả gói:</label>
+                                    <textarea rows="8" class="form-control" id="packageDescription" name="packageDescription"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="packagePrice" class="form-label">Giá tiền:</label>
+                                    <input type="number" class="form-control" id="packagePrice" name="packagePrice">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="packageDiscount" class="form-label">Giảm giá (%):</label>
+                                    <input type="number" class="form-control" id="packageDiscount" name="packageDiscount">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="specialFeatures" class="form-label">Tính năng đặc biệt:</label>
+                                    <textarea rows="8" class="form-control" id="specialFeatures" name="specialFeatures"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="selectPackageType" class="form-label">Loại gói:</label>
+                                    <select id="selectPackageType" class="form-select c-pointer">
+                                        <option value="TYPE_NORMAL" selected>Phổ thông</option>
+                                        <option value="TYPE_PREMIUM">Cao cấp</option>
+                                        <option value="TYPE_MEDIUM">Trung bình</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="selectPackageUnit" class="form-label">Thời gian:</label>
+                                    <select id="selectPackageUnit" class="form-select c-pointer">
+                                        <option value="PER_MONTH" selected>1 tháng</option>
+                                        <option value="PER_7_DAYS">7 ngày</option>
+                                        <option value="PER_3_DAYS">3 ngày</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-add">OK</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit ads package Modal -->
+<div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editPackageModalLabel">Sửa gói</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="editPackageForm">
+                        <input type="hidden" id="package-id" />
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="editPackageName" class="form-label">Tên gói:</label>
+                                    <input type="text" class="form-control" id="editPackageName" name="editPackageName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPackageDescription" class="form-label">Mô tả gói:</label>
+                                    <textarea rows="8" class="form-control" id="editPackageDescription" name="editPackageDescription"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPackagePrice" class="form-label">Giá tiền:</label>
+                                    <input type="number" class="form-control" id="editPackagePrice" name="editPackagePrice">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPackageDiscount" class="form-label">Giảm giá (%):</label>
+                                    <input type="number" class="form-control" id="editPackageDiscount" name="editPackageDiscount">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="editSpecialFeatures" class="form-label">Tính năng đặc biệt:</label>
+                                    <textarea rows="8" class="form-control" id="editSpecialFeatures" name="editSpecialFeatures"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editSelectPackageType" class="form-label">Loại gói:</label>
+                                    <select id="editSelectPackageType" class="form-select c-pointer">
+                                        <option value="TYPE_NORMAL" selected>Phổ thông</option>
+                                        <option value="TYPE_PREMIUM">Cao cấp</option>
+                                        <option value="TYPE_MEDIUM">Trung bình</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editSelectPackageUnit" class="form-label">Thời gian:</label>
+                                    <select id="editSelectPackageUnit" class="form-select c-pointer">
+                                        <option value="PER_MONTH" selected>1 tháng</option>
+                                        <option value="PER_7_DAYS">7 ngày</option>
+                                        <option value="PER_3_DAYS">3 ngày</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-edit">OK</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AD approve Modal -->
+<div class="modal fade" id="approveAdModal" tabindex="-1" aria-labelledby="approveAdModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div th:each="request : ${requests}" class="request-wrapper mt-3 d-flex align-items-center p-3">
+                        <h6 th:text="${request.id}"></h6>
+                        <div class="request-info ms-4 flex-grow-1" th:data-request-id="${request.id}" data-bs-toggle="modal" data-bs-target="#detailsModal">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 th:text="'Tên sản phẩm: ' + ${request.productName}"></h5>
+                                    <h6 th:text="'Tài khoản yêu cầu: ' + ${request.user.username}"></h6>
+                                    <h6 class="text-gray" th:text="'Yêu cầu lúc: '  + ${#temporals.format(request.createDate, 'dd/MM/yyyy HH:mm:ss')}">22/12/2023</h6>
+                                    <span th:classappend="${request.status.name()} == 'APPROVED' ? 'badge-success' : (${request.status.name()} == 'NOT_APPROVED' ? 'badge-danger' : (${request.status.name()} == 'PENDING' ? 'badge-info' : 'badge-info'))"
+                                          class="p-1 text-light border-radius-5"
+                                          th:text="${request.getStringStatus()}"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <div th:if="${request.status.name()} == 'APPROVED'">
+                                        <ul>
+                                            <li>Thanh toán:
+                                                <span th:text="${request.active ? 'Đã thanh toán' : 'Chưa thanh toán'}"></span>
+                                            </li>
+                                            <li th:if="${request.active}">Ngày hết hạn:
+                                                <span th:text="${#temporals.format(request.expirationDate, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div th:if="${request.status.name()} == 'PENDING'" th:data-request-id="${request.id}" class="button-other btn-reject">Từ chối</div>
+                            <div th:if="${request.status.name()} == 'PENDING'" th:data-request-id="${request.id}" class="button btn-approve">Phê duyệt</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Ad approval Modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Thông Tin Chi Tiết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h4>Thông Tin Yêu Cầu</h4>
+                        <p><strong>ID:</strong> <span id="requestId"></span></p>
+                        <p><strong>Ngày Thanh Toán:</strong> <span id="adBoughtDate"></span></p>
+                        <p><strong>Ngày Hết Hạn:</strong> <span id="adExpirationDate"></span></p>
+                        <p><strong>Phương Thức Thanh Toán:</strong> <span id="paymentMethod"></span></p>
+                        <p><strong>Số Tiền:</strong> <span id="amount"></span></p>
+                        <p><strong>Trạng Thái:</strong> <span id="status"></span></p>
+                        <hr>
+                        <h4>Thông Tin Sản Phẩm</h4>
+                        <p><strong>Tên Sản Phẩm:</strong> <span id="productName"></span></p>
+                        <p><strong>Banner:</strong></p>
+                        <img id="productImage" src="" class="img-fluid" alt="Hình Ảnh Sản Phẩm">
+                    </div>
+                    <div class="col-lg-6">
+                        <h4>Thông Tin Liên Lạc</h4>
+                        <p><strong>Họ Tên:</strong> <span id="fullName"></span></p>
+                        <p><strong>Ngày Sinh:</strong> <span id="birthDate"></span></p>
+                        <p><strong>Chức Vụ:</strong> <span id="position"></span></p>
+                        <p><strong>Số Điện Thoại:</strong> <span id="phoneNumber"></span></p>
+                        <p><strong>Email:</strong> <span id="email"></span></p>
+                        <p><strong>Số CCCD/Hộ chiếu:</strong> <span id="legalDocId"></span></p>
+                        <p><strong>Cấp Bởi:</strong> <span id="issuedBy"></span></p>
+                        <p><strong>Ngày Cấp:</strong> <span id="dated"></span></p>
+                        <p><strong>Địa Chỉ:</strong> <span id="address"></span></p>
+                        <hr>
+                        <h4>Thông Tin Doanh Nghiệp</h4>
+                        <p><strong>Tên:</strong> <span id="enterpriseName"></span></p>
+                        <p><strong>Địa Chỉ:</strong> <span id="enterpriseAddress"></span></p>
+                        <p><strong>Số Điện Thoại:</strong> <span id="enterprisePhoneNumber"></span></p>
+                        <p><strong>Email:</strong> <span id="enterpriseEmail"></span></p>
+                        <p><strong>Website:</strong> <a id="enterpriseWebsite" href="http://www.examplecorp.com">www.examplecorp.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script th:src="@{/assets/admin/js/ads-package.js}"></script>

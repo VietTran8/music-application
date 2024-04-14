@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="https://www.thymeleaf.org">
+    <head th:replace="~{public/fragments::html_head}"></head>
+    <body>
+    <div class="container-fluid position-relative d-flex p-0">
+        <div th:replace="~{public/fragments::spinner}"></div>
+        <div th:replace="~{public/fragments::sidebar}"></div>
+
+        <div class="content" style="background-color: #f0f2f5;">
+            <div th:replace="~{public/fragments::ads}"></div>
+            <nav th:replace="~{public/fragments::navbar}"></nav>
+
+            <div id="root">
+            </div>
+
+        </div>
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top" style="margin-bottom: 30px"><i
+                class="bi bi-arrow-up"></i></a>
+    </div>
+    <div th:replace="~{public/fragments::music-player}"></div>
+    <!-- AD approve Modal -->
+    <div class="modal fade" id="userAdsModal" tabindex="-1" aria-labelledby="userAdsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div th:each="request : ${userAds}" class="request-wrapper mt-3 d-flex align-items-center p-3">
+                            <h6 style="color: #333" th:text="${request.id}"></h6>
+                            <div class="request-info ms-4 flex-grow-1" th:data-request-id="${request.id}" th:data-request-active="${request.active}" data-bs-toggle="modal" data-bs-target="#detailsModal">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 style="color: #333" th:text="'Tên sản phẩm: ' + ${request.productName}"></h5>
+                                        <h6 style="color: #333" class="text-gray" th:text="'Yêu cầu lúc: '  + ${#temporals.format(request.createDate, 'dd/MM/yyyy HH:mm:ss')}">22/12/2023</h6>
+                                        <span th:classappend="${request.status.name()} == 'APPROVED' ? 'text-success' : (${request.status.name()} == 'NOT_APPROVED' ? 'text-danger' : (${request.status.name()} == 'PENDING' ? 'badge-info' : 'badge-info'))"
+                                              class="p-1 border-radius-5"
+                                              style="font-weight: bold"
+                                              th:text="${request.getStringStatus()}"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div th:if="${request.status.name()} == 'APPROVED'">
+                                            <ul>
+                                                <li>Thanh toán:
+                                                    <span th:text="${request.active ? 'Đã thanh toán' : 'Chưa thanh toán'}"></span>
+                                                </li>
+                                                <li th:if="${request.active}">Ngày hết hạn:
+                                                    <span th:text="${#temporals.format(request.expirationDate, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <a th:if="${!request.active} and ${request.status.name()} == 'APPROVED'" th:href="@{|/payment/ad/create-payment?adId=${request.id}|}" target="_blank" class="button">Thanh toán</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel">Thông Tin Chi Tiết</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h4>Thông Tin Yêu Cầu</h4>
+                            <p><strong>ID:</strong> <span id="requestId"></span></p>
+                            <p><strong>Ngày Thanh Toán:</strong> <span id="adBoughtDate"></span></p>
+                            <p><strong>Ngày Hết Hạn:</strong> <span id="adExpirationDate"></span></p>
+                            <p><strong>Phương Thức Thanh Toán:</strong> <span id="paymentMethod"></span></p>
+                            <p><strong>Số Tiền:</strong> <span id="amount"></span></p>
+                            <p><strong>Trạng Thái:</strong> <span id="status"></span></p>
+                            <hr>
+                            <h4>Thông Tin Sản Phẩm</h4>
+                            <p><strong>Tên Sản Phẩm:</strong> <span id="productName"></span></p>
+                            <p><strong>Banner:</strong></p>
+                            <img id="productImage" src="" class="img-fluid" alt="Hình Ảnh Sản Phẩm">
+                        </div>
+                        <div class="col-lg-6">
+                            <h4>Thông Tin Liên Lạc</h4>
+                            <p><strong>Họ Tên:</strong> <span id="fullName"></span></p>
+                            <p><strong>Ngày Sinh:</strong> <span id="birthDate"></span></p>
+                            <p><strong>Chức Vụ:</strong> <span id="position"></span></p>
+                            <p><strong>Số Điện Thoại:</strong> <span id="phoneNumber"></span></p>
+                            <p><strong>Email:</strong> <span id="email"></span></p>
+                            <p><strong>Số CCCD/Hộ chiếu:</strong> <span id="legalDocId"></span></p>
+                            <p><strong>Cấp Bởi:</strong> <span id="issuedBy"></span></p>
+                            <p><strong>Ngày Cấp:</strong> <span id="dated"></span></p>
+                            <p><strong>Địa Chỉ:</strong> <span id="address"></span></p>
+                            <hr>
+                            <h4>Thông Tin Doanh Nghiệp</h4>
+                            <p><strong>Tên:</strong> <span id="enterpriseName"></span></p>
+                            <p><strong>Địa Chỉ:</strong> <span id="enterpriseAddress"></span></p>
+                            <p><strong>Số Điện Thoại:</strong> <span id="enterprisePhoneNumber"></span></p>
+                            <p><strong>Email:</strong> <span id="enterpriseEmail"></span></p>
+                            <p><strong>Website:</strong> <a id="enterpriseWebsite" href="http://www.examplecorp.com">www.examplecorp.com</a></p>
+                        </div>
+                    </div>
+                    <div class="row" id="approachStatWrapper" style="display: none">
+                        <div class="col-12">
+                            <h4>Biểu đồ thống kê lượt tiếp cận</h4>
+                            <canvas id="approachStatistics" style="width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Ad approval Modal -->
+    <div th:replace="~{public/fragments::libraries}"></div>
+    </body>
+</html>

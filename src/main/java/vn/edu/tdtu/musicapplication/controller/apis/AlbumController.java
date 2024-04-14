@@ -10,6 +10,7 @@ import vn.edu.tdtu.musicapplication.dtos.request.DeleteSongFromAlbumRequest;
 import vn.edu.tdtu.musicapplication.service.AlbumService;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/album")
@@ -22,9 +23,22 @@ public class AlbumController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
+    @PostMapping("/add-all")
+    public ResponseEntity<?> addAllAlbum(@RequestBody List<AddAlbumRequest> requestBody){
+        BaseResponse<?> response = albumService.saveAllAlbum(requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
     @PostMapping("/add-song")
     public ResponseEntity<?> addSongToAlbum(@RequestBody AddSongToAlbumRequest request){
         BaseResponse<?> response = albumService.addSongToAlbum(request);
+
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @GetMapping("/{id}/songs")
+    public ResponseEntity<?> getSongsFromAlbum(@PathVariable("id") Long albumId){
+        BaseResponse<?> response = albumService.getSongsFromAlbumResp(albumId);
 
         return ResponseEntity.status(response.getCode()).body(response);
     }
@@ -59,7 +73,6 @@ public class AlbumController {
         BaseResponse<?> response = albumService.favourite(principal, id);
         return ResponseEntity.status(response.getCode()).body(response);
     }
-
 
     @GetMapping("")
     public ResponseEntity<?> getAllAlbumsByArtist(@RequestParam(name = "artistId") Long artistId){

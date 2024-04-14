@@ -1,0 +1,173 @@
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <form action="">
+            <button data-bs-toggle="modal" data-bs-target="#addPackageModal" type="button" class="btn btn-success text-white" style="margin-bottom: 20px;">+ Thêm gói nhạc</button>
+        </form>
+        <table class="table">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Tên gói nhạc</th>
+                <th scope="col">Loại</th>
+                <th scope="col">Thời gian</th>
+                <th scope="col">Giá tiền</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <tr th:each="package : ${data.packages}">
+                <th scope="row" class="text-dark" th:text="${package.id}"></th>
+                <td class="text-dark" th:text="${package.name}"></td>
+                <td class="text-dark" th:text="${package.getStringType()}"></td>
+                <td class="text-dark" th:text="${package.duration} + ' ngày'"></td>
+                <td class="text-dark" th:text="${package.price} + ' vnd'"></td>
+                <td>
+                    <button data-bs-target="#editPackageModal" data-bs-toggle="modal" th:data-pack-id="${package.id}" type="button" class="btn btn-warning btn-edit">Sửa</button>
+                    <button th:data-pack-id="${package.id}" type="button" class="btn btn-danger btn-delete">Xóa</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-end">
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/packages?page=${prevPage}|}" aria-label="Previous">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-left-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Trước</span>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, data.totalPages)}" class="page-item"><a class="page-link" th:href="@{|/admin/packages?page=${i}|}" th:text="${i}" >1</a></li>
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/packages?page=${nextPage}|}" aria-label="Next">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-right-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Sau</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add package Modal -->
+<div class="modal fade" id="addPackageModal" tabindex="-1" aria-labelledby="addPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addPackageModalLabel">Thêm gói</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="addPackageForm">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="packageName" class="form-label">Tên gói:</label>
+                                    <input type="text" class="form-control" id="packageName" name="packageName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="packageDescription" class="form-label">Mô tả gói:</label>
+                                    <textarea rows="8" class="form-control" id="packageDescription" name="packageDescription"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="packagePrice" class="form-label">Giá tiền:</label>
+                                    <input type="number" class="form-control" id="packagePrice" name="packagePrice">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="packageDiscount" class="form-label">Giảm giá (%):</label>
+                                    <input type="number" class="form-control" id="packageDiscount" name="packageDiscount">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="specialFeatures" class="form-label">Tính năng đặc biệt:</label>
+                                    <textarea rows="8" class="form-control" id="specialFeatures" name="specialFeatures"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="selectPackageType" class="form-label">Loại gói:</label>
+                                    <select id="selectPackageType" class="form-select c-pointer">
+                                        <option value="TYPE_NORMAL" selected>Phổ thông</option>
+                                        <option value="TYPE_PREMIUM">Cao cấp</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="duration" class="form-label">Thời gian (ngày):</label>
+                                    <input type="number" class="form-control" id="duration" name="duration">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-add">OK</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add artist Modal -->
+
+<!-- Edit package Modal -->
+<div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <input id="package-id" type="hidden"/>
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editPackageModalLabel">Sửa gói</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="editPackageForm">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="editPackageName" class="form-label">Tên gói:</label>
+                                    <input type="text" class="form-control" id="editPackageName" name="editPackageName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPackageDescription" class="form-label">Mô tả gói:</label>
+                                    <textarea rows="8" class="form-control" id="editPackageDescription" name="editPackageDescription"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPackagePrice" class="form-label">Giá tiền:</label>
+                                    <input type="number" class="form-control" id="editPackagePrice" name="editPackagePrice">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPackageDiscount" class="form-label">Giảm giá (%):</label>
+                                    <input type="number" class="form-control" id="editPackageDiscount" name="editPackageDiscount">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="editSpecialFeatures" class="form-label">Tính năng đặc biệt:</label>
+                                    <textarea rows="8" class="form-control" id="editSpecialFeatures" name="editSpecialFeatures"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editSelectPackageType" class="form-label">Loại gói:</label>
+                                    <select id="editSelectPackageType" class="form-select c-pointer">
+                                        <option value="TYPE_NORMAL" selected>Phổ thông</option>
+                                        <option value="TYPE_PREMIUM">Cao cấp</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editDuration" class="form-label">Thời gian (ngày):</label>
+                                    <input type="number" class="form-control" id="editDuration" name="editDuration">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-edit">Sửa</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add artist Modal -->
+
+<script th:src="@{/assets/admin/js/package.js}"></script>

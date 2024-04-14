@@ -1,0 +1,105 @@
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <form action="">
+            <button data-bs-toggle="modal" data-bs-target="#addGenreModal" type="button" class="btn btn-success text-white" style="margin-bottom: 20px;">+ Thêm thể loại</button>
+        </form>
+        <table class="table">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Tên thể loại</th>
+                <th scope="col">Thao tác</th>
+                <th scope="col">Mô tả</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <tr th:each="genre : ${data.genres}">
+                <th scope="row" class="text-dark" th:text="${genre.id}">1</th>
+                <td class="text-dark" th:text="${genre.name}"></td>
+                <td class="text-dark" th:text="${genre.description}"></td>
+                <td>
+                    <button th:data-genre-id="${genre.id}" type="button" data-bs-toggle="modal" data-bs-target="#editGenreModal" class="btn btn-warning btn-edit mb-2">Sửa</button>
+                    <button th:data-genre-id="${genre.id}" type="button" class="btn btn-danger btn-delete mb-2">Xóa</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-end">
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/genre?page=${prevPage}|}" aria-label="Previous">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-left-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Trước</span>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, data.totalPages)}" class="page-item"><a class="page-link" th:href="@{|/admin/genre?page=${i}|}" th:text="${i}" >1</a></li>
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/genre?page=${nextPage}|}" aria-label="Next">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-right-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Sau</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add genre Modal -->
+<div class="modal fade" id="addGenreModal" tabindex="-1" aria-labelledby="addGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addGenreModalLabel">Thêm thể loại</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Tên thể loại</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <textarea type="text" class="form-control" id="description" name="description"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-add">Thêm</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit genre Modal -->
+<div class="modal fade" id="editGenreModal" tabindex="-1" aria-labelledby="editGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <input type="hidden" id="genreId">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editGenreModalLabel">Sửa thể loại</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Tên thể loại</label>
+                        <input type="text" class="form-control" id="editName" name="editName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Mô tả</label>
+                        <textarea rows="7" type="text" class="form-control" id="editDescription" name="editDescription"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-edit">Sửa</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" th:src="@{/assets/admin/js/genre.js}"></script>

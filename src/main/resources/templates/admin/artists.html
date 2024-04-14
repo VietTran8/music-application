@@ -1,0 +1,200 @@
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <form action="">
+            <button data-bs-toggle="modal" data-bs-target="#addArtistModal" type="button" class="btn btn-success text-white" style="margin-bottom: 20px;">+ Thêm nghệ sĩ</button>
+            <button data-bs-toggle="modal" data-bs-target="#approveArtistModal" type="button" class="btn btn-success text-white" style="margin-bottom: 20px;"> <i class="fa-solid fa-user-check"></i> Phê duyệt yêu cầu nghệ sĩ</button>
+        </form>
+        <table class="table">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Hình ảnh</th>
+                <th scope="col">Tên nghệ sĩ</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <tr th:each="artist : ${artists}">
+                <th scope="row" class="text-dark" th:text="${artist.id}">1</th>
+                <td class="text-dark">
+                    <img th:src="@{|${artist.image != null && !artist.image.isEmpty() ? artist.image : '/img/user.png'}|}" style="object-fit: cover; width: 80px; height: 80px; border-radius: 10px"/>
+                </td>
+                <td class="text-dark" th:text="${artist.artistName}"></td>
+                <td>
+                    <button th:data-artist-id="${artist.id}" data-bs-toggle="modal" data-bs-target="#editArtistModal" type="button" class="btn btn-warning btn-edit">Sửa</button>
+                    <button th:data-artist-id="${artist.id}" type="button" class="btn btn-danger btn-delete">Xóa</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add artist Modal -->
+<div class="modal fade" id="addArtistModal" tabindex="-1" aria-labelledby="addArtistModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addArtistModalLabel">Thêm nghệ sĩ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="addArtistForm">
+                        <div class="mb-3">
+                            <label for="artistName" class="form-label">Tên nghệ sĩ:</label>
+                            <input type="text" class="form-control" id="artistName" name="artistName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Hình ảnh:</label>
+                            <input type="file" accept="image/*" class="form-control" id="image" name="image">
+                        </div>
+                        <div class="mb-3">
+                            <label for="genreSelect" class="form-label">Genres:</label>
+                            <select id="genreSelect" class="form-select c-pointer">
+                                <option value="">Select a genre</option>
+                                <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
+                            </select>
+                        </div>
+                        <div id="selectedGenres" class="mb-3">
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-add">OK</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add artist Modal -->
+
+<!-- Edit artist Modal -->
+<div class="modal fade" id="editArtistModal" tabindex="-1" aria-labelledby="editArtistModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editArtistModalLabel">Edit nghệ sĩ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="editArtistForm">
+                        <input type="hidden" id="editArtistId">
+                        <div class="mb-3">
+                            <label for="editArtistName" class="form-label">Tên nghệ sĩ:</label>
+                            <input type="text" class="form-control" id="editArtistName" name="editArtistName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="newImage" class="form-label">Hình ảnh:</label>
+                            <input type="file" accept="image/*" class="form-control" id="newImage" name="image">
+                            <input type="hidden" class="form-control" id="oldImage">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGenreSelect" class="form-label">Genres:</label>
+                            <select id="editGenreSelect" class="form-select c-pointer">
+                                <option value="">Select a genre</option>
+                                <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
+                            </select>
+                        </div>
+                        <div id="editSelectedGenres" class="mb-3">
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-edit">OK</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add artist Modal -->
+
+<!-- Artist approve Modal -->
+<div class="modal fade" id="approveArtistModal" tabindex="-1" aria-labelledby="approveArtistModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div th:each="request : ${artistRequests}" class="request-wrapper mt-3 d-flex align-items-center">
+                        <h6 th:text="${request.id}"></h6>
+                        <div class="request-info ms-4 flex-grow-1" th:data-request-id="${request.id}" data-bs-toggle="modal" data-bs-target="#infoModal">
+                            <h5 th:text="'Tài khoản: ' + ${request.user.username}"></h5>
+                            <h6 class="text-gray" th:text="'Yêu cầu lúc: '  + ${#temporals.format(request.requestedDate, 'dd/MM/yyyy')}">22/12/2023</h6>
+                            <span th:classappend="${request.status} == 'APPROVED' ? 'badge-success' : (${request.status} == 'NOT_APPROVED' ? 'badge-danger' : (${request.status} == 'PENDING' ? 'badge-info' : 'badge-info'))"
+                                  class="p-1 text-light border-radius-5"
+                                  th:text="${request.getStringStatus()}"></span>
+                        </div>
+                        <div>
+                            <div th:if="${request.status} == 'PENDING'" th:data-request-id="${request.id}" class="button-other btn-reject">Từ chối</div>
+                            <div th:if="${request.status} == 'PENDING'" th:data-request-id="${request.id}" class="button btn-approve">Phê duyệt</div>
+                            <div th:if="${request.status} == 'APPROVED'" th:data-request-id="${request.id}" class="button btn-revoke">Thu hồi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add artist Modal -->
+
+<!-- Info Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Thông Tin Chi Tiết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Column 1: Basic Info -->
+                    <div class="col-md-4">
+                        <h3>Thông Tin Cơ Bản</h3>
+                        <p><strong>Trạng thái:</strong> <span id="reqStatus"></span></p>
+                        <p><strong>Ngày yêu cầu:</strong> <span id="reqDate"></span></p>
+                        <p><strong>Email:</strong> <span id="reqEmail"></span></p>
+                        <p><strong>Username:</strong> <span id="reqUsername"></span></p>
+                        <img id="reqArtistImage" src="http://res.cloudinary.com/dt8itomae/image/upload/v1711461396/music_application/img/ae10eabe-546a-4f88-8dff-6a3235da205d.jpg" alt="Avatar" class="img-fluid" style="border-radius: 10px">
+                    </div>
+
+                    <!-- Column 2: Works and Ownership -->
+                    <div class="col-md-4">
+                        <h3>Tác phẩm</h3>
+                        <ul id="works">
+                            <li>First Album - 10/03/2015 - John Doe</li>
+                        </ul>
+                        <h3 class="mt-4">Sở Hữu</h3>
+
+                        <div class="ownership-container container">
+                            <div id="image-preview" class="row gy-4">
+                                <img src="https://res.cloudinary.com/dt8itomae/image/upload/v1712633409/music_application/img/d2b3920f-462a-40c4-ab68-2d517e59b882.jpg" alt="Image1" class="img-fluid">
+                                <img src="https://res.cloudinary.com/dt8itomae/image/upload/v1712642912/music_application/img/4c0c2748-ee45-400d-8dd1-51da0fff5a7c.jpg" alt="Image2" class="img-fluid">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Personal Info -->
+                    <div class="col-md-4">
+                        <h3>Thông Tin Cá Nhân</h3>
+                        <p><strong>Tên đầy đủ:</strong> <span id="reqFullname"></span></p>
+                        <p><strong>Ngày sinh:</strong> <span id="reqBirthDate"></span></p>
+                        <p><strong>Quốc tịch:</strong> <span id="reqNation"></span></p>
+                        <p><strong>Số điện thoại:</strong> <span id="reqPhoneNumber"></span></p>
+                        <p><strong>Tên tài khoản ngân hàng:</strong> <span id="reqBankName"></span></p>
+                        <p><strong>Số tài khoản ngân hàng:</strong> <span id="reqBankNumber"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="button" data-bs-dismiss="modal">Đóng</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" th:src="@{/assets/admin/js/artists.js}"></script>

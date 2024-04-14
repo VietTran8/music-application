@@ -34,4 +34,25 @@ public class AdvertisementPackage {
     @OneToMany(mappedBy = "aPackage")
     @JsonIgnore
     private List<Advertisement> advertisements;
+
+    public String getStringType(){
+        switch (this.getType()){
+            case TYPE_PREMIUM -> {
+                return "Cao cấp";
+            }
+            case TYPE_NORMAL -> {
+                return "Phổ thông";
+            }
+            default -> {
+                return "Trung bình";
+            }
+        }
+    }
+
+    public String getDurationString(){
+        String duration =  this.getUnit().description.split("/")[1];
+        if(duration.contains("th"))
+            duration = "1 " + duration;
+        return duration;
+    }
 }

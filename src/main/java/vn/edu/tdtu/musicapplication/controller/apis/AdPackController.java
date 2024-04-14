@@ -3,6 +3,7 @@ package vn.edu.tdtu.musicapplication.controller.apis;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.RequestAdvertisingRequest;
@@ -25,7 +26,7 @@ public class AdPackController {
     }
 
     @GetMapping("/for-display")
-    public ResponseEntity<?> adForDisplay(HttpSession session){
+    public ResponseEntity<?> adForDisplay(Principal principal, HttpSession session){
         if(session.getAttribute("premiumAdPage") == null){
             session.setAttribute("premiumAdPage", 0);
         }
@@ -35,7 +36,7 @@ public class AdPackController {
         if(session.getAttribute("norAdPage") == null){
             session.setAttribute("norAdPage", 0);
         }
-        BaseResponse<?> response = adPackageService.getAd(session);
+        BaseResponse<?> response = adPackageService.getAd(principal, session);
 
         return ResponseEntity.status(response.getCode()).body(response);
     }

@@ -23,8 +23,10 @@ import vn.edu.tdtu.musicapplication.models.artist_request.ArtistRequest;
 import vn.edu.tdtu.musicapplication.repository.ArtistRequestRepository;
 import vn.edu.tdtu.musicapplication.repository.RoleRepository;
 import vn.edu.tdtu.musicapplication.service.mail.MailService;
+import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +40,14 @@ public class ArtistRequestService {
     private final MailService mailService;
     private final ArtistRequestDetailsMapper artistRequestDetailsMapper;
     private final RoleRepository roleRepository;
+    private final PrincipalUtils principalUtils;
+    private final ArtistService artistService;
 
     public BaseResponse<?> submitArtistRequest(Principal principal, SubmitArtistRequest request){
         BaseResponse<Map<String, Long>> response = new BaseResponse<>();
 
         if(principal != null){
-            User user = userService.findByEmail(principal.getName());
+            User user = principalUtils.loadUserFromPrincipal(principal);
             if(user.getRoles().stream().filter(role -> role.getName() == ERole.ROLE_ARTIST).toList().isEmpty()){
                 ArtistRequest artistRequest = submitArtistRequestMapper.mapToObject(request);
                 artistRequest.setUser(user);
@@ -55,18 +59,18 @@ public class ArtistRequestService {
 
                 response.setData(data);
                 response.setCode(HttpServletResponse.SC_CREATED);
-                response.setMessage("Artist request submitted successfully");
+                response.setMessage("Yêu cầu đã được gửi!");
                 response.setStatus(true);
             }else{
                 response.setData(null);
                 response.setCode(HttpServletResponse.SC_BAD_REQUEST);
-                response.setMessage("This user already is an artist");
+                response.setMessage("Người dùng này đã là nghệ sĩ");
                 response.setStatus(true);
             }
         }else{
             response.setData(null);
             response.setCode(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setMessage("You are not authenticated");
+            response.setMessage("Chưa đăng nhập!");
             response.setStatus(false);
         }
 
@@ -125,6 +129,50 @@ public class ArtistRequestService {
         return response;
     }
 
+    public BaseResponse<?> revokeArtistRole(Long artistRequest){
+        BaseResponse<String> response = new BaseResponse<>();
+        artistRequestRepository.findById(artistRequest).ifPresentOrElse(
+            request -> {
+                User foundUser = request.getUser();
+                if(foundUser != null){
+                    if(foundUser.getRoles().stream().map(Role::getName).toList().contains(ERole.ROLE_ARTIST)){
+                        roleRepository.findByName(ERole.ROLE_ARTIST).ifPresent(role -> {
+                            foundUser.getRoles().remove(role);
+                            foundUser.getArtistInfo().setPersonalInfo(null);
+                            artistService.save(foundUser.getArtistInfo());
+                            foundUser.setArtistInfo(null);
+                            userService.saveUser(foundUser);
+                            request.setActive(false);
+                            artistRequestRepository.save(request);
+
+                            response.setCode(200);
+                            response.setData(null);
+                            response.setMessage("Thu hồi quyền thành công");
+                            response.setStatus(true);
+                        });
+                    }else{
+                        response.setCode(200);
+                        response.setData(null);
+                        response.setMessage("Người dùng này không có quyền nhạc sĩ");
+                        response.setStatus(true);
+                    }
+                }else{
+                    response.setCode(200);
+                    response.setData(null);
+                    response.setMessage("Không tìm thấy người dùng");
+                    response.setStatus(true);
+                }
+            }, () -> {
+                    response.setCode(400);
+                    response.setData(null);
+                    response.setMessage("Không tìm thấy yêu cầu");
+                    response.setStatus(false);
+            }
+        );
+
+        return response;
+    }
+
     public BaseResponse<?> getAllArtistRequest(int page, int limit){
         BaseResponse<List<ArtistRequestDetails>> response = new BaseResponse<>();
         List<ArtistRequest> artistRequests = artistRequestRepository
@@ -143,6 +191,15 @@ public class ArtistRequestService {
 
 
         return response;
+    }
+
+    public List<ArtistRequestDetails> getAllArtistRequest(){
+        List<ArtistRequest> artistRequests = artistRequestRepository
+                .findByActiveOrderByRequestedDateDesc(true);
+
+        return artistRequests.stream().map(
+                artistRequestDetailsMapper::mapToDto
+        ).toList();
     }
 
     public BaseResponse<?> deleteArtistRequest(Principal principal, Long requestId){

@@ -28,7 +28,7 @@ public class LoginController {
                 }
             }
             model.addAttribute("errorMessage", message);
-            return "login_register";
+            return "public/login_register";
         }
         System.out.println(principal.getName());
         return "redirect:/home";

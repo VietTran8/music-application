@@ -52,7 +52,6 @@ public class CustomOAuthSuccessHandler implements AuthenticationSuccessHandler {
             }
 
             log.info(((DefaultOAuth2User) authentication.getPrincipal()).getName());
-
             response.sendRedirect("/home");
         }
     }

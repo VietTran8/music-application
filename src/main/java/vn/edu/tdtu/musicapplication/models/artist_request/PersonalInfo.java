@@ -1,5 +1,6 @@
 package vn.edu.tdtu.musicapplication.models.artist_request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
@@ -23,6 +24,7 @@ public class PersonalInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String fullName;
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDateTime birthDate;
     private String nation;
     private String phoneNumber;

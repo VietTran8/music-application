@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +26,8 @@ public class MinimizedSong {
     private MinimizedAlbum album;
     private List<MinimizedArtistInfo> artists;
     private String author;
+
+    public String getArtistNameString() {
+        return artists.stream().map(MinimizedArtistInfo::getArtistName).collect(Collectors.joining(", "));
+    }
 }

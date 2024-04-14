@@ -145,11 +145,11 @@ public class PaymentController {
 
     @GetMapping("/success")
     public String successPage(){
-        return "success";
+        return "public/success";
     }
 
     @GetMapping("/failure")
     public String failurePage(){
-        return "failure";
+        return "public/failure";
     }
 }

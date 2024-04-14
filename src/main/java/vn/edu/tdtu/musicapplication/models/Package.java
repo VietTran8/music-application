@@ -31,4 +31,11 @@ public class Package {
     @OneToMany(mappedBy = "mPackage")
     @JsonIgnore
     private List<UserPackageBought> boughtPackages;
+
+    public String getStringType(){
+        if(this.getType().equals(EPackageType.TYPE_PREMIUM)){
+            return "Cao cấp";
+        }
+        return "Phổ thông";
+    }
 }

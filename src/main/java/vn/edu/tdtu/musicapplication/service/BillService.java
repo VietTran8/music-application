@@ -63,7 +63,7 @@ public class BillService {
         }
 
         try{
-            Template t = config.getTemplate("bill.html");
+            Template t = config.getTemplate("public/bill.html");
             String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
 
             mailDetails.setText(html);

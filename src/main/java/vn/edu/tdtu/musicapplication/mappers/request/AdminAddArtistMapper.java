@@ -30,5 +30,6 @@ public class AdminAddArtistMapper implements Mapper<ArtistInfo, AddArtistRequest
     public void bindFromDto(ArtistInfo artistInfo, AddArtistRequest dto){
         artistInfo.setArtistName(dto.getArtistName());
         artistInfo.setGenres(genreService.findAllByIds(dto.getGenreIds()));
+        artistInfo.setImage(dto.getImage());
     }
 }

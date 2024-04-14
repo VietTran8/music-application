@@ -8,6 +8,8 @@ import vn.edu.tdtu.musicapplication.mappers.Mapper;
 import vn.edu.tdtu.musicapplication.models.advertisement.Advertisement;
 import vn.edu.tdtu.musicapplication.service.AdPackageService;
 
+import java.time.LocalDateTime;
+
 @Component
 public class RequestAdRequestMapper implements Mapper<Advertisement, RequestAdvertisingRequest> {
     @Override
@@ -16,6 +18,7 @@ public class RequestAdRequestMapper implements Mapper<Advertisement, RequestAdve
         advertisement.setActive(false);
         advertisement.setProductName(dto.getProductName());
         advertisement.setImageUrl(dto.getImageUrl());
+        advertisement.setCreateDate(LocalDateTime.now());
         advertisement.setContactInfo(dto.getContactInfo());
         advertisement.setEnterpriseInfo(dto.getEnterpriseInfo());
         advertisement.setStatus(EAdStatus.PENDING);

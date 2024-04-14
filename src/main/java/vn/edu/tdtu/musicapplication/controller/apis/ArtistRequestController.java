@@ -31,6 +31,13 @@ public class ArtistRequestController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
+    @PostMapping("/revoke/{id}")
+    public ResponseEntity<?> revokeArtistRequest(@PathVariable("id") Long artistRequestId){
+        BaseResponse<?> response = artistRequestService.revokeArtistRole(artistRequestId);
+
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
     @PostMapping("/delete/{id}")
     public ResponseEntity<?> deleteRequest(Principal principal, @PathVariable("id") Long requestId){
         BaseResponse<?> response = artistRequestService.deleteArtistRequest(principal, requestId);

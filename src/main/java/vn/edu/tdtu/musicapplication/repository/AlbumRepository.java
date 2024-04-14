@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface AlbumRepository extends JpaRepository<Album, Long> {
     List<Album> findByActiveAndArtistInfo(Boolean active, ArtistInfo artistInfo);
-    List<Album> findByTitleContainingIgnoreCase(String title);
+    List<Album> findByTitleContainingIgnoreCaseOrArtistInfoArtistNameContainingIgnoreCase(String title, String artistInfo_artistName);
     Page<Album> findByActive(Boolean active, Pageable pageable);
+    List<Album> findByActive(Boolean active);
+    Long countAllByActive(Boolean active);
 }

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng giá quảng cáo</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .ad-container {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 18px;
+        }
+    </style>
+</head>
+
+<body style="background: black">
+    <!-- Spinner Start -->
+    <div id="spinner"
+         class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+  <img th:src="@{/img/background.png}" style="backdrop-filter: blur(10px); width: 100%; height: 100dvh; z-index: -1; position: absolute; top: 0; left: 0; right: 0; bottom: 0; object-fit: cover;
+                    mask-image: linear-gradient(to top, transparent, black 75%);
+            mask-mode: alpha;">
+  <div class=""
+    style="background-color: #252323; display: flex; align-items: center; justify-content: space-between; height: 50px;">
+    <div style="display: flex; align-items: center; margin-left: 20px" class="cusor">
+      <div><i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i></div>
+      <div><a th:href="@{/home}"
+          style="text-decoration: none; color: #fff; font-size: 17px; margin-left: 10px; margin-bottom: 0px;">Trang
+          chủ</a></div>
+    </div>
+    <div class="cusor"><i class="fa-solid fa-user" style="color: #f2f2f2; margin-right: 20px;"></i></div>
+  </div>
+
+  <div class="container mt-5">
+    <h3
+      style="text-align: center; margin-top: 20px; margin-bottom: 30px; color: #fff; text-shadow: 1px 1px 5px rgba(0, 0, 0, 1);">
+      Thông tin các gói quảng cáo</h3>
+    <table class="table table-hover"
+      style="border-radius: 20px; overflow: hidden; box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;">
+      <thead>
+        <tr style="text-align: center;">
+          <th scope="col">STT</th>
+          <th scope="col">Loại</th>
+          <th scope="col">Tên gói</th>
+          <th scope="col">Mô tả</th>
+          <th scope="col">Thời hạn</th>
+          <th scope="col">Giá</th>
+          <th scope="col">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+      <th:block th:each="typeEntry : ${packages.entrySet()}">
+          <th:block th:each="adPackage, adStat : ${typeEntry.value}" th:object="${adPackage}">
+              <tr class="ads" style="text-align: center; vertical-align: middle; cursor: pointer">
+                  <td th:if="${adStat.index == 0}" th:rowspan="${#lists.size(typeEntry.value)}" th:text="${adStat.count}"></td>
+                  <td th:if="${adStat.index == 0}" th:rowspan="${#lists.size(typeEntry.value)}" th:text="${AdUtils.convertTypeToVietnamese(typeEntry.key)}"></td>
+                  <td th:text="*{name}">Tên gói</td>
+                  <td th:text="*{description}">Mô tả</td>
+                  <td th:text="${AdUtils.convertUnitToVietnamese(adPackage.unit)}">Thời hạn</td>
+                  <td th:text="*{price}">Giá</td>
+                  <td>
+                      <div class="button contact-btn"
+                           th:data-pack-id="*{id}"
+                           th:data-pack-name="*{name}"
+                           th:data-pack-amount="*{price}"
+                           th:data-pack-unit="${AdUtils.convertUnitToVietnamese(adPackage.unit)}"
+                           data-bs-toggle="modal"
+                           data-bs-target="#submit-modal">Liên hệ</div>
+                  </td>
+              </tr>
+          </th:block>
+      </th:block>
+      </tbody>
+    </table>
+    <div class="row mt-5" style="color: #fff; text-shadow: 1px 1px 5px rgba(0, 0, 0, 1);">
+      <h2>Những lợi ích khi quảng cáo trên VSound</h2>
+      <ul style="padding-left: 50px">
+        <li>Tiếp cận đến nhiều người dùng</li>
+        <li>Đa dạng hóa chiến dịch quảng cáo banner</li>
+        <li>Chi phí hợp lý, ưu đãi</li>
+        <li>Báo cáo hiệu quả quảng cáo (số lượt tiếp cận)</li>
+        <li>Hỗ trợ tư vấn chuyên nghiệp</li>
+      </ul>
+      <p>Hãy liên hệ ngay với đại diện của chúng tôi để biết thêm thông tin chi tiết!</p>
+    </div>
+  </div>
+
+  <div class="modal fade" id="submit-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+       aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable ">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="staticBackdropLabel">Điền thông tin</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <div class="container">
+                      <form>
+                          <div class="row">
+                              <!-- Column 1 -->
+                              <div class="col-md-6">
+                                  <h3>Thông Tin Gói & Doanh Nghiệp</h3>
+                                  <div class="form-group mt-3">
+                                      <label for="packageId">Mã Gói</label>
+                                      <input type="text" class="form-control" id="packageId" disabled>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="packageId">Tên gói quảng cáo</label>
+                                      <input type="text" class="form-control" id="packageName" disabled>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="enterpriseName">Tên sản phẩm</label>
+                                      <input type="text" class="form-control" id="productName">
+                                      <span class="text-danger" id="errorProductName"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label class="button" for="imageUrl">Chọn banner quảng cáo</label>
+                                      <input type="file" style="display: none" class="form-control" id="imageUrl" accept="image/*">
+                                      <span class="text-danger" id="errorImage"></span>
+                                  </div>
+                                  <div class="ad-container container">
+                                      <div id="image-preview">
+                                      </div>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="enterpriseName">Tên doanh nghiệp</label>
+                                      <input type="text" class="form-control" id="enterpriseName">
+                                      <span class="text-danger" id="errorEnterpriseName"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="enterpriseAddress">Địa chỉ</label>
+                                      <input type="text" class="form-control" id="enterpriseAddress">
+                                      <span class="text-danger" id="errorEnterpriseAddress"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="enterprisePhoneNumber">Số điện thoại</label>
+                                      <input type="text" class="form-control" id="enterprisePhoneNumber">
+                                      <span class="text-danger" id="errorEnterprisePhoneNumber"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="enterpriseEmail">Email</label>
+                                      <input type="email" class="form-control" id="enterpriseEmail">
+                                      <span class="text-danger" id="errorEnterpriseEmail"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="websiteLink">Liên kết Website (nếu có)</label>
+                                      <input type="url" class="form-control" id="websiteLink">
+                                      <span class="text-danger" id="errorEnterpriseLink"></span>
+                                  </div>
+                              </div>
+
+                              <!-- Column 2 -->
+                              <div class="col-md-6">
+                                  <h3>Thông Tin Liên Hệ</h3>
+                                  <div class="form-group mt-3">
+                                      <label for="fullName">Họ và Tên</label>
+                                      <input type="text" class="form-control" id="fullName">
+                                      <span class="text-danger" id="errorFullName"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="fullName">Ngày sinh</label>
+                                      <input type="date" class="form-control" id="birthDate">
+                                      <span class="text-danger" id="errorBirthDate"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="fullName">Địa chỉ</label>
+                                      <input type="text" class="form-control" id="address">
+                                      <span class="text-danger" id="errorAddress"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="position">Chức Vụ</label>
+                                      <input type="text" class="form-control" id="position">
+                                      <span class="text-danger" id="errorPosition"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="contactPhoneNumber">Số Điện Thoại</label>
+                                      <input type="text" class="form-control" id="contactPhoneNumber">
+                                      <span class="text-danger" id="errorContactNumber"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="contactEmail">Email</label>
+                                      <input type="email" class="form-control" id="contactEmail">
+                                      <span class="text-danger" id="errorContactEmail"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="legalDocId">Số CCCD/Hộ chiếu</label>
+                                      <input type="text" class="form-control" id="legalDocId">
+                                      <span class="text-danger" id="errorLegalDocId"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="issuedBy">Cấp Bởi</label>
+                                      <input type="text" class="form-control" id="issuedBy">
+                                      <span class="text-danger" id="errorIssuedBy"></span>
+                                  </div>
+                                  <div class="form-group mt-3">
+                                      <label for="dated">Ngày Cấp</label>
+                                      <input type="date" class="form-control" id="dated">
+                                      <span class="text-danger" id="errorDated"></span>
+                                  </div>
+                              </div>
+                              <h3 class="mt-3">Số tiền cần thanh toán khi quảng cáo được duyệt: <span style="color: #FF416C"> <span id="packageAmount">100.000 </span> / <span id="packageUnit">30 ngày</span> </span></h3>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <div class="button-other" data-bs-dismiss="modal">Đóng</div>
+                  <div id="send-request" class="button">Gửi yêu cầu</div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script type="module" th:src="@{/js/ads-pricing.js}"></script>
+</body>
+
+</html>

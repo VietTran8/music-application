@@ -1,5 +1,6 @@
 package vn.edu.tdtu.musicapplication.models.artist_request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
@@ -20,6 +21,7 @@ public class Work {
     private long id;
     private String name;
     @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDateTime releaseDate;
     private String author;
     @ManyToOne

@@ -1,0 +1,65 @@
+:root {
+    --cot: #FF416C;
+}
+
+.genre-tag{
+    padding: 5px 10px;
+    background: var(--cot);
+    border-radius: 120px;
+    color: #fff;
+    margin-top: 10px;
+    font-weight: bold;
+    min-width: 50px;
+    text-align: center;
+    display: inline-block;
+    position: relative;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.genres-select {
+    display: flex;
+    flex-direction: column;
+}
+
+.remove-tag{
+    position: absolute;
+    top: -3px;
+    right: -2px;
+    padding: 3px;
+    width: 5px;
+    height: 5px;
+    color: #333333;
+    background: #fff;
+    display: block;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.each-bank {
+    background-size: 80% auto;
+    background: url("https://api.vietqr.io/img/ICB.png") no-repeat center;
+    height: 100px;
+    width: 100%;
+}
+
+.each-work, .ownership-container {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 18px;
+}
+
+.work-card-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.del-work {
+    cursor: pointer;
+}
+
+.ownership {
+    height: 150px;
+    object-fit: cover;
+}
+

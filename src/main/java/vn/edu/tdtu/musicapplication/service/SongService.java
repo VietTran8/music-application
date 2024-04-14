@@ -2,35 +2,49 @@ package vn.edu.tdtu.musicapplication.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.AddSongRequest;
+import vn.edu.tdtu.musicapplication.dtos.request.UpdateSongImgReq;
+import vn.edu.tdtu.musicapplication.dtos.request.UpdateSongLyricsReq;
+import vn.edu.tdtu.musicapplication.dtos.request.UpdateSongNameReq;
 import vn.edu.tdtu.musicapplication.dtos.response.FavouriteResponse;
 import vn.edu.tdtu.musicapplication.dtos.response.MinimizedSong;
+import vn.edu.tdtu.musicapplication.enums.ERole;
+import vn.edu.tdtu.musicapplication.enums.EUploadFolder;
 import vn.edu.tdtu.musicapplication.mappers.request.AddSongRequestMapper;
 import vn.edu.tdtu.musicapplication.mappers.response.MinimizedSongMapper;
 import vn.edu.tdtu.musicapplication.models.Genre;
+import vn.edu.tdtu.musicapplication.models.Role;
 import vn.edu.tdtu.musicapplication.models.Song;
 import vn.edu.tdtu.musicapplication.models.User;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.repository.SongRepository;
+import vn.edu.tdtu.musicapplication.service.cloudinary.FileServiceImpl;
 import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SongService {
     private final SongRepository songRepository;
     private final AddSongRequestMapper addSongRequestMapper;
     private final MinimizedSongMapper minimizedSongMapper;
     private final UserService userService;
     private final PrincipalUtils principalUtils;
+    private final FileServiceImpl fileService;
 
     public MinimizedSong toMinimized(Song song){
         return minimizedSongMapper.mapToDto(song);
@@ -47,6 +61,39 @@ public class SongService {
         response.setData(minimizedSong);
         response.setMessage("Song added successfully");
         response.setStatus(true);
+
+        return response;
+    }
+
+    public Long countTotalSongs(){
+        return songRepository.countAllByActive(true);
+    }
+
+    public BaseResponse<?> uploadSongImage(Long songId, MultipartFile file){
+        BaseResponse<Map<String, Object>> response = new BaseResponse<>();
+        Song foundSong = findById(songId);
+        try{
+            String url = fileService.uploadFile(file, EUploadFolder.FOLDER_IMG);
+
+            foundSong.setImageUrl(url);
+
+            songRepository.save(foundSong);
+            Map<String, Object> data = new HashMap<>();
+            data.put("url", url);
+
+            response.setMessage("Hình ảnh đã được cập nhật!");
+            response.setData(data);
+            response.setStatus(true);
+            response.setCode(HttpServletResponse.SC_OK);
+
+            return response;
+        }catch (IOException ex){
+            log.error(ex.getMessage());
+            response.setMessage("Something went wrong: " + ex.getMessage());
+        }
+        response.setData(null);
+        response.setStatus(false);
+        response.setCode(HttpServletResponse.SC_BAD_REQUEST);
 
         return response;
     }
@@ -136,6 +183,50 @@ public class SongService {
         return response;
     }
 
+    public BaseResponse<?> updateSongName(UpdateSongNameReq request){
+        Long songId = request.getSongId();
+        Song foundSong = songRepository.findById(songId).orElse(null);
+        BaseResponse<MinimizedSong> response = new BaseResponse<>();
+        response.setMessage("Song not found with id: " + songId);
+        response.setCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
+        response.setData(null);
+        response.setStatus(false);
+
+        if(foundSong != null && foundSong.getActive()){
+            foundSong.setName(request.getNewSongName());
+            Song updatedSong = songRepository.save(foundSong);
+
+            response.setMessage("Song updated successfully");
+            response.setCode(HttpServletResponse.SC_ACCEPTED);
+            response.setData(minimizedSongMapper.mapToDto(updatedSong));
+            response.setStatus(true);
+        }
+
+        return response;
+    }
+
+    public BaseResponse<?> updateSongLyrics(UpdateSongLyricsReq request){
+        Long songId = request.getSongId();
+        Song foundSong = songRepository.findById(songId).orElse(null);
+        BaseResponse<MinimizedSong> response = new BaseResponse<>();
+        response.setMessage("Song not found with id: " + songId);
+        response.setCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
+        response.setData(null);
+        response.setStatus(false);
+
+        if(foundSong != null && foundSong.getActive()){
+            foundSong.setLyrics(request.getNewSongLyrics());
+            Song updatedSong = songRepository.save(foundSong);
+
+            response.setMessage("Song updated successfully");
+            response.setCode(HttpServletResponse.SC_ACCEPTED);
+            response.setData(minimizedSongMapper.mapToDto(updatedSong));
+            response.setStatus(true);
+        }
+
+        return response;
+    }
+
     public BaseResponse<?> addPlaySong(Long songId){
         Song foundSong = findById(songId);
         BaseResponse<MinimizedSong> response = new BaseResponse<>();
@@ -187,11 +278,28 @@ public class SongService {
 
     public List<MinimizedSong> getAllSongsForView(int page, int limit){
         List<MinimizedSong> minimizedSongs = new ArrayList<>();
-        songRepository.findByActive(true, PageRequest.of(page - 1, limit)).forEach(song -> {
+        songRepository.findByActive(true, PageRequest.of(page - 1, limit))
+                .stream()
+                .forEach(song -> {
+                    minimizedSongs.add(minimizedSongMapper.mapToDto(song));
+                });
+
+        return minimizedSongs;
+    }
+
+    public Map<String, Object> getAllSongsForAdminView(int page, int limit){
+        List<MinimizedSong> minimizedSongs = new ArrayList<>();
+
+        Page<Song> songPage = songRepository.findByActive(true, PageRequest.of(page - 1, limit));
+        songPage.forEach(song -> {
             minimizedSongs.add(minimizedSongMapper.mapToDto(song));
         });
 
-        return minimizedSongs;
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalPages", songPage.getTotalPages());
+        result.put("songs", minimizedSongs);
+
+        return result;
     }
 
     public BaseResponse<?> getSongById(Long id){
@@ -215,7 +323,7 @@ public class SongService {
     }
 
     public BaseResponse<?> getSongsByName(String name){
-        List<Song> foundSongs = songRepository.findByNameContainingIgnoreCase(name);
+        List<Song> foundSongs = songRepository.findBySongNameOrArtistName(name);
         List<MinimizedSong> minimizedSongs = new ArrayList<>();
         BaseResponse<List<MinimizedSong>> response = new BaseResponse<>();
 
@@ -243,6 +351,7 @@ public class SongService {
 
         if(foundSong != null && foundSong.getActive()) {
             foundSong.setActive(false);
+
             songRepository.save(foundSong);
 
             response.setData(null);

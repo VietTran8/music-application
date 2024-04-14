@@ -30,7 +30,7 @@ public class MinimizedAlbumMapper implements Mapper<Album, MinimizedAlbum> {
         minimizedAlbum.setDescription(object.getDescription());
         minimizedAlbum.setImageUrl(object.getImageUrl());
         minimizedAlbum.setReleasedDate(object.getReleasedDate());
-        minimizedAlbum.setNoOfSongs(object.getSongs().size());
+        minimizedAlbum.setNoOfSongs(object.getSongs().stream().filter(Song::getActive).toList().size());
         minimizedAlbum.setArtist(object.getArtistInfo().getArtistName());
 
         return minimizedAlbum;

@@ -26,7 +26,7 @@ public class StatisticController {
     @GetMapping("/month")
     public ResponseEntity<?> getMonthStatistics(){
         LocalDateTime now = LocalDateTime.now();
-        BaseResponse<?> response = service.getMonthStatistics(now.getMonthValue(), now.getYear());
+        BaseResponse<?> response = service.getMonthStatistics(3, now.getYear());
 
         return ResponseEntity.status(response.getCode()).body(response);
     }

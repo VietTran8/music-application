@@ -2,6 +2,8 @@ package vn.edu.tdtu.musicapplication.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.admin.AddGenreRequest;
@@ -13,7 +15,9 @@ import vn.edu.tdtu.musicapplication.models.Genre;
 import vn.edu.tdtu.musicapplication.repository.GenreRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +61,24 @@ public class GenreService {
             response.setCode(HttpServletResponse.SC_CREATED);
         }
         
+        return response;
+    }
+
+    public BaseResponse<?> saveAllGenre(List<AddGenreRequest> request){
+        BaseResponse<MinimizedGenre> response = new BaseResponse<>();
+        response.setStatus(true);
+        response.setMessage("OK");
+        response.setData(null);
+        response.setCode(HttpServletResponse.SC_OK);
+
+        request.forEach(g -> {
+            Genre genre = addGenreRequestMapper.mapToObject(g);
+
+            if(!genreRepository.existsByNameAndActive(genre.getName(), true)){
+                genreRepository.save(genre);
+            }
+        });
+
         return response;
     }
 
@@ -123,6 +145,20 @@ public class GenreService {
         response.setCode(HttpServletResponse.SC_OK);
 
         return response;
+    }
+
+    public Map<String, Object> getAllAdminGenres(int page, int size){
+        Page<Genre> genres = genreRepository.findByActive(true, PageRequest.of(page - 1, size));
+        List<MinimizedGenre> minimizedGenres = new ArrayList<>();
+        genres.forEach(genre -> {
+            minimizedGenres.add(minimizedGenreMapper.mapToDto(genre));
+        });
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalPages", genres.getTotalPages());
+        data.put("genres", minimizedGenres);
+
+        return data;
     }
 
     public BaseResponse<?> getGenreById(Long id){

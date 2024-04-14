@@ -16,6 +16,7 @@ import vn.edu.tdtu.musicapplication.models.*;
 import vn.edu.tdtu.musicapplication.models.Package;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.service.*;
+import vn.edu.tdtu.musicapplication.utils.AdUtils;
 import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
 import java.security.Principal;
@@ -34,7 +35,9 @@ public class MainController {
     private final GenreService genreService;
     private final PlaylistService playlistService;
     private final PackageService packageService;
-    @GetMapping({"/{action}/component"})
+    private final AdPackageService adPackageService;
+
+    @GetMapping("/{action}/component")
     public String homePage(Principal principal, Model model,
                            @PathVariable(name = "action") String action,
                            @RequestParam(name = "page", defaultValue = "1") int page,
@@ -42,7 +45,9 @@ public class MainController {
                            @RequestParam(name = "playlist_id", required = false) Long playlistId,
                            @RequestParam(name = "song_id", required = false) Long songId,
                            @RequestParam(name = "genre_id", required = false) Long genreId,
-                           @RequestParam(name = "artist_id", required = false) Long artistId){
+                           @RequestParam(name = "artist_id", required = false) Long artistId,
+                           @RequestParam(name = "album_id", required = false) Long albumId,
+                           @RequestParam(name = "user_id", required = false) Long userId){
         User currentUser;
         model.addAttribute("packages", new ArrayList<>());
 
@@ -118,11 +123,19 @@ public class MainController {
                         Song song = songService.findById(songId);
                         List<MinimizedPlaylist> playlists = playlistService.getAllPlaylists(principal);
                         boolean saved = playlists.stream().anyMatch(p -> p.getSongs().contains(songService.toMinimized(song)));
+                        boolean isArtist = currentUser != null && currentUser.getRoles()
+                                .stream()
+                                .map(Role::getName)
+                                .toList()
+                                .contains(ERole.ROLE_ARTIST) && currentUser.getArtistInfo().getSongs().contains(song);
+
                         model.addAttribute("song", song.getActive() ? song : null);
                         model.addAttribute("playlists", playlists);
                         model.addAttribute("saved", saved);
+                        model.addAttribute("isArtist", isArtist);
                         model.addAttribute("canPlay", currentUser != null && currentUser.getIsPremium());
                         model.addAttribute("liked", currentUser != null && currentUser.getFavouriteSongs().contains(song));
+
                     }else {
                         return "redirect:/home";
                     }
@@ -141,13 +154,12 @@ public class MainController {
                                 .stream()
                                 .filter(song -> song.getActive() == null || song.getActive())
                                 .map(songService::toMinimized)
-                                .limit(12)
                                 .toList();
                         List<MinimizedAlbum> albums = artistInfo
                                 .getAlbums()
                                 .stream()
                                 .map(albumService::toMinimized)
-                                .limit(12).toList();
+                                .toList();
 
                         List<FollowerResponse> followers = new ArrayList<>();
 
@@ -186,14 +198,72 @@ public class MainController {
                         model.addAttribute("createdByAdmin", artistInfo.getPersonalInfo() == null);
                         model.addAttribute("canPlay", currentUser != null && currentUser.getIsPremium());
                         model.addAttribute("isMyAccount", currentUser != null && Objects.equals(currentUser.getId(), user != null ? user.getId() : -1));
+                        model.addAttribute("user", user);
+
+                        model.addAttribute("genres", genreService.getAllGenres().getData());
+                        model.addAttribute("albums", artistInfo.getAlbums().stream().map(albumService::toMinimized).toList());
                     }else {
                         return "redirect:/home";
                     }
                 }
+                case "following-artists" -> {
+                    List<MinimizedArtistInfo> artistInfos = userService.getFollowingArtistByUserId(currentUser.getId())
+                            .stream()
+                            .map(artistService::toMinimized).toList();
+                    model.addAttribute("artists", artistInfos);
+                }
+                case "album-details" -> {
+                    if(albumId != null){
+                        Album album = albumService.findById(albumId);
+                        MinimizedAlbum minimizedAlbum = albumService.toMinimized(album);
+
+                        model.addAttribute("album", minimizedAlbum);
+                        model.addAttribute("liked", currentUser != null && currentUser.getFavouriteAlbums().contains(album));
+                        model.addAttribute("songs", album.getSongs().stream().filter(Song::getActive).map(songService::toMinimized).toList());
+                    }
+                }
+                case "favourite-album" -> {
+                    List<MinimizedAlbum> minimizedAlbums = currentUser.getFavouriteAlbums().stream().map(albumService::toMinimized).toList();
+                    model.addAttribute("albums", minimizedAlbums);
+                }
+                case "user-details" -> {
+                    User foundUser = userService.findById(userId);
+
+                    List<MinimizedSong> songs = foundUser
+                            .getFavouriteSongs()
+                            .stream()
+                            .filter(song -> song.getActive() == null || song.getActive())
+                            .map(songService::toMinimized)
+                            .limit(12)
+                            .toList();
+
+                    List<MinimizedAlbum> albums = foundUser
+                            .getFavouriteAlbums()
+                            .stream()
+                            .map(albumService::toMinimized)
+                            .limit(12).toList();
+
+                    List<MinimizedArtistInfo> artistInfos = userService.getFollowingArtistByUserId(foundUser.getId())
+                                    .stream().map(artistService::toMinimized)
+                                    .toList();
+
+                    model.addAttribute("fewAlbums", albums.stream().limit(12).toList());
+                    model.addAttribute("fewFollowings", artistInfos.stream().limit(12).toList());
+                    model.addAttribute("fewSongs", songs.stream().limit(12).toList());
+
+                    model.addAttribute("allSongs", songs);
+                    model.addAttribute("allAlbums", albums);
+                    model.addAttribute("allFollowings", artistInfos);
+
+                    model.addAttribute("user", foundUser);
+                    model.addAttribute("isMyAccount", currentUser != null && Objects.equals(currentUser.getId(), userId));
+                    model.addAttribute("canPlay", currentUser != null && currentUser.getIsPremium());
+
+                }
             }
         }
 
-        return action != null ? action : "home";
+        return "public/" +  (action != null ? action : "home");
     }
 
     @GetMapping({"", "/{action}"})
@@ -215,6 +285,7 @@ public class MainController {
                 displayNorAd = false;
             }
 
+
             List<UserPackageBought> userPackages = packageService.findUserPackageByUser(currentUser);
             model.addAttribute("packages", userPackages);
 
@@ -222,20 +293,51 @@ public class MainController {
             model.addAttribute("userAvatar", currentUser.getAvatar());
             model.addAttribute("displayPreAd", displayPreAd);
             model.addAttribute("displayNorAd", displayNorAd);
+            model.addAttribute("userAds", currentUser.getAdvertisements().stream().sorted(
+                    (a1, a2) -> {
+                        if(a1.getCreateDate() == null){
+                            return 1;
+                        }else if(a2.getCreateDate() == null){
+                            return -1;
+                        }
+
+                        return a2.getCreateDate().compareTo(a1.getCreateDate());
+                    }
+            ).toList());
+            model.addAttribute("isAdmin", currentUser.getRoles().stream().map(Role::getName).toList().contains(ERole.ROLE_ADMIN));
 
             boolean isArtist = currentUser.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_ARTIST));
 
             if(isArtist){
                 model.addAttribute("artistId", currentUser.getArtistInfo().getId());
             }
+            model.addAttribute("artistUser", isArtist);
+
         }
-        return "main";
+        return "public/main";
     }
 
     @GetMapping("/service/{view}")
-    public String service(@PathVariable("view") String view, Model model){
-        List<Package> packages = packageService.getAllPackages().getData();
-        model.addAttribute("packages", packages);
-        return view;
+    public String service(Principal principal, @PathVariable("view") String view, Model model){
+        switch (view){
+            case "premium" -> {
+                List<Package> packages = packageService.getAllPackages().getData();
+                model.addAttribute("packages", packages);
+            }
+            case "artist-confirmation" -> {
+                model.addAttribute("genres", genreService.getAllGenres().getData());
+            }
+            case "ads-pricing" -> {
+                model.addAttribute("packages", adPackageService.getAllPackages().getData());
+                model.addAttribute("AdUtils", new AdUtils());
+            }
+        }
+
+        return "public/" + view;
+    }
+
+    @GetMapping("/403")
+    public String noPermissionPage(){
+        return "public/403";
     }
 }

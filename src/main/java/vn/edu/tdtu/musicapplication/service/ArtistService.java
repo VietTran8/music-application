@@ -16,11 +16,14 @@ import vn.edu.tdtu.musicapplication.mappers.request.AdminAddArtistMapper;
 import vn.edu.tdtu.musicapplication.mappers.response.MinimizedArtistInfoMapper;
 import vn.edu.tdtu.musicapplication.models.Album;
 import vn.edu.tdtu.musicapplication.models.Song;
+import vn.edu.tdtu.musicapplication.models.User;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.repository.ArtistInfoRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,16 @@ public class ArtistService {
 
     public ArtistInfo findById(Long id){
         return artistInfoRepository.findById(id).orElse(null);
+    }
+
+    public MinimizedArtistInfo toMinimized(ArtistInfo artistInfo) {
+        return minimizedArtistInfoMapper.mapToDto(artistInfo);
+    }
+
+    public long countTotalArtists(){
+        return artistInfoRepository.findAllByActive(true)
+                .stream().filter(a -> a.getPersonalInfo() != null)
+                .count();
     }
 
     public List<ArtistInfo> findAllByIds(List<Long> ids){
@@ -133,6 +146,24 @@ public class ArtistService {
         totalPages = artistInfoPage.getTotalPages();
 
         artistInfoPage.get().forEach(artist -> {
+            minimizedArtistInfos.add(minimizedArtistInfoMapper.mapToDto(artist));
+        });
+
+        BaseResponse<List<MinimizedArtistInfo>> response = new BaseResponse<>();
+        response.setCode(HttpServletResponse.SC_OK);
+        response.setStatus(true);
+        response.setMessage("Artists fetched successfully");
+        response.setData(minimizedArtistInfos);
+
+        return response;
+    }
+
+    public BaseResponse<List<MinimizedArtistInfo>> getAllArtists() {
+        List<MinimizedArtistInfo> minimizedArtistInfos = new ArrayList<>();
+
+        List<ArtistInfo> artistInfoPage = artistInfoRepository.findAllByActive(true);
+
+        artistInfoPage.forEach(artist -> {
             minimizedArtistInfos.add(minimizedArtistInfoMapper.mapToDto(artist));
         });
 

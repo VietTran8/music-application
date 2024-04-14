@@ -1,0 +1,94 @@
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <button id="add-account" type="button" class="btn btn-success text-white" style="margin-bottom: 20px;">+ Thêm tài khoản</button>
+        <table class="table">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Email</th>
+                <th scope="col">Tên tài khoản</th>
+                <th scope="col">Trạng thái</th>
+                <th scope="col">Vai trò</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                <tr th:each="user : ${data.users}">
+                    <th scope="row" class="text-dark" th:text="${user.getId()}"></th>
+                    <td class="text-dark" th:text="${user.getEmail()}"></td>
+                    <td class="text-dark" th:text="${user.getUsername()}"></td>
+                    <td class="text-dark" th:text="${user.getActive() ? 'Hoạt động' : 'Vô hiệu hóa'}"></td>
+                    <td th:data-user-id="${user.getId()}" class="text-dark" data-bs-toggle="modal" data-bs-target="#editRoles" onclick="updateRoleCheckboxes(this, this.getAttribute('data-user-id'))">
+                        <span class="c-pointer" th:text="${user.getRoleString()}"></span>
+                        <i class="fa-solid fa-user-pen text-dark ms-1 c-pointer"></i>
+                    </td>
+                    <td>
+                        <button
+                            th:data-user-id="${user.getId()}"
+                            th:classappend="${user.getActive() ? 'btn-danger' : 'btn-success'}"
+                            th:text="${user.getActive() ? 'Khóa' : 'Mở khóa'}"
+                            type="button"
+                            onclick="disableUser(this, this.getAttribute('data-user-id'))"
+                            class="btn"></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-end">
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/accounts?page=${prevPage}|}" aria-label="Previous">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-left-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Trước</span>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, data.totalPages)}" class="page-item"><a class="page-link" th:href="@{|/admin/accounts?page=${i}|}" th:text="${i}" >1</a></li>
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/accounts?page=${nextPage}|}" aria-label="Next">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-right-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Sau</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <script th:src="@{/assets/admin/js/account.js}"></script>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="editRoles" tabindex="-1" aria-labelledby="editRolesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRolesLabel">Chỉnh sửa vai trò</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="ROLE_USER" id="roleUser">
+                    <label class="form-check-label text-dark" for="roleUser">
+                        Người dùng
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="ROLE_ADMIN" id="roleAdmin" checked>
+                    <label class="form-check-label text-dark" for="roleAdmin">
+                        Quản trị viên
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="ROLE_ARTIST" id="roleArtist" checked>
+                    <label class="form-check-label text-dark" for="roleArtist">
+                        Nghệ sĩ
+                    </label>
+                </div>
+                <input id="userId" type="hidden">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveRoleChangeBtn">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,7 +2,8 @@ import * as songService from './song-service.js'
 import * as genreScript from './genre.js';
 import * as playlistService from './playlist-service.js'
 import * as userService from "./user-service.js"
-import {removeSongFromPlaylist} from "./playlist-service.js";
+import * as fileService from "./file-service.js"
+import * as albumService from "./album-service.js"
 
 let currentSong = null;
 let currentPage = 1;
@@ -127,10 +128,79 @@ function userDetailScript(){
         };
     });
 
-    const fileInput = document.getElementById("image-upload");
+    const seeMoreSongs = document.getElementById("see-more-songs");
+    const seeMoreAlbums = document.getElementById("see-more-albums");
+    const seeMoreFollowers = document.getElementById("see-more-followers");
 
-    const imageIcon = document.querySelector(".image-container .image-overlay i");
+    const spinner = document.getElementById("spinner");
+    const avatarInput = document.getElementById("avatar-input");
+    const headerInput = document.getElementById("header-input");
+
+    seeMoreSongs.addEventListener("click", () => {
+        seeMoreClickHandler(1);
+    });
+
+    seeMoreAlbums.addEventListener("click", () => {
+        seeMoreClickHandler(2);
+    });
+
+    seeMoreFollowers.addEventListener("click", () => {
+        seeMoreClickHandler(3);
+    });
+
+
+    if(avatarInput)
+        avatarInput.addEventListener("change", () => {
+            const file = avatarInput.files[0];
+            const userAvatar = document.getElementsByClassName("user-avatar")[0]
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            spinner.classList.add('show');
+            spinner.style.opacity = "0.5";
+            userService.uploadImage(formData, "avatar")
+                .then(result => {
+                    spinner.classList.remove('show');
+                    spinner.style.opacity = "0";
+                    showToast(result.message);
+                    userAvatar.setAttribute("src", result.data);
+                    loadContentByUrl(window.location.href);
+                })
+        })
+
+    if(headerInput)
+        headerInput.addEventListener("change", () => {
+            const file = headerInput.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            spinner.classList.add('show');
+            spinner.style.opacity = "0.5";
+            userService.uploadImage(formData, "header")
+                .then(result => {
+                    spinner.classList.remove('show');
+                    spinner.style.opacity = "0";
+                    showToast(result.message);
+                    loadContentByUrl(window.location.href);
+                })
+        })
+
+    function seeMoreClickHandler(index){
+        const pane = panes[index];
+
+        $(".tab-item.active").classList.remove("active");
+        $(".tab-pane.active").classList.remove("active");
+
+        line.style.left = tabs[index].offsetLeft + "px";
+        line.style.width = tabs[index].offsetWidth + "px";
+
+        tabs[index].classList.add("active");
+        pane.classList.add("active");
+    }
 }
+
 
 function artistDetailsScript(){
     const $ = document.querySelector.bind(document);
@@ -141,6 +211,13 @@ function artistDetailsScript(){
     const seeMoreFollowers = document.getElementById("see-more-followers");
     const btnAction = document.getElementById("btn-action");
 
+    const btnAdd = document.getElementById('btn-add');
+    const artistId = document.getElementById('artist-id').value;
+
+    const spinner = document.getElementById("spinner");
+    const avatarInput = document.getElementById("avatar-input");
+    const headerInput = document.getElementById("header-input");
+
     const userEmail = document.getElementById("user-email").value;
 
     const tabs = $$(".tab-item");
@@ -148,6 +225,8 @@ function artistDetailsScript(){
 
     const tabActive = $(".tab-item.active");
     const line = $(".tabs .line");
+
+    let selectedSongIds = [];
 
     tabs.forEach((tab, index) => {
         const pane = panes[index];
@@ -172,24 +251,143 @@ function artistDetailsScript(){
         seeMoreClickHandler(2);
     });
 
-    seeMoreFollowers.addEventListener("click", () => {
-        seeMoreClickHandler(3);
+    if(seeMoreFollowers){
+        seeMoreFollowers.addEventListener("click", () => {
+            seeMoreClickHandler(3);
+        });
+    }
+
+    if(btnAction){
+        btnAction.addEventListener("click", () => {
+            if(btnAction.classList.contains("follow")){
+                userService.followUser(userEmail).then(
+                    result => {
+                        showToast(result.message, "", false);
+                        loadContentByUrl(window.location.href)
+                    }
+                )
+            }
+        })
+    }
+
+    if(btnAdd)
+        btnAdd.addEventListener("click" , () => {
+            if(validateForm()){
+                spinner.classList.add('show');
+                spinner.style.opacity = "0.5";
+                addSong();
+            }
+        })
+
+    if(avatarInput)
+        avatarInput.addEventListener("change", () => {
+            const file = avatarInput.files[0];
+            const userAvatar = document.getElementsByClassName("user-avatar")[0]
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            spinner.classList.add('show');
+            spinner.style.opacity = "0.5";
+            userService.uploadImage(formData, "avatar")
+                .then(result => {
+                    spinner.classList.remove('show');
+                    spinner.style.opacity = "0";
+                    showToast(result.message);
+                    userAvatar.setAttribute("src", result.data);
+                    loadContentByUrl(window.location.href);
+                })
+        })
+
+    if(headerInput)
+        headerInput.addEventListener("change", () => {
+            const file = headerInput.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            spinner.classList.add('show');
+            spinner.style.opacity = "0.5";
+            userService.uploadImage(formData, "header")
+                .then(result => {
+                    spinner.classList.remove('show');
+                    spinner.style.opacity = "0";
+                    showToast(result.message);
+                    loadContentByUrl(window.location.href);
+                })
+        })
+
+
+    document.getElementById('add-btn').addEventListener('click', function() {
+        const selectedSongs = document.querySelectorAll('.choose-song:checked');
+
+        const songContainer = document.querySelector('.song-container');
+
+        songContainer.innerHTML = '';
+
+        selectedSongIds = [];
+
+        selectedSongs.forEach((checkbox) => {
+            const songId = checkbox.getAttribute('data-song-id'); // Giả sử bạn có ID bài hát để dùng khi cần
+            const songName = checkbox.closest('.ds-baihat').querySelector('.song-name').textContent;
+            const songArtist = checkbox.closest('.ds-baihat').querySelector('.song-artist').textContent;
+            const songImg = checkbox.closest('.ds-baihat').querySelector('.song-img').src;
+
+            selectedSongIds.push(parseInt(songId));
+
+            const songElement = `
+                <div style="overflow: visible" class="horizontal-card ds-baihat">
+                    <div style="display: flex; justify-content: center; align-items: center; padding-top: 5px; padding-bottom: 5px;">
+                        <img style="width: 50px; height: 50px; margin-left: 12px; object-fit: cover;" src="${songImg}" class="song-img" alt="image">
+                        <div style="margin-left: 8px;">
+                            <h6 style="margin: 0px; color: #000000;">
+                                <a class="song-name">${songName}</a>
+                            </h6>
+                            <p style="margin-bottom: 0px; margin-top: 4px; font-size: smaller" class="song-artist">${songArtist}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            songContainer.insertAdjacentHTML('beforeend', songElement);
+        });
     });
 
-    btnAction.addEventListener("click", () => {
-        if(btnAction.classList.contains("follow")){
-            userService.followUser(userEmail).then(
-                result => {
-                    showToast(result.message, "", false);
-                    loadContentByUrl(window.location.href)
+    document.getElementById("btn-add-album").addEventListener('click',  () => {
+        console.log(selectedSongIds);
+        const releaseDate = document.getElementById('albumReleaseDate').value;
+        const description = document.getElementById('albumDescription').value;
+        const title = document.getElementById('albumTitle').value;
+        const img = document.getElementById('albumImage');
+
+        if(validateAlbumForm()){
+            spinner.classList.add('show');
+            spinner.style.opacity = "0.5";
+            let formData = new FormData();
+            formData.append("file", img.files[0])
+            fileService.uploadFile(formData, "img").then(
+                response => {
+                    let requestBody = {
+                        "releasedDate": releaseDate,
+                        "description": description,
+                        "title": title,
+                        "imageUrl": response.data,
+                        "artistId": parseInt(artistId),
+                        "songIds": selectedSongIds
+                    }
+
+                    albumService.addAlbum(requestBody)
+                        .then(result => {
+                            spinner.classList.remove('show');
+                            spinner.style.opacity = "0";
+                            showToast(result.message, '', false);
+                            loadContentByUrl(window.location.href);
+                            closeAlbumModal();
+                        })
                 }
-            )
+            );
         }
     })
-
-    const fileInput = document.getElementById("image-upload");
-
-    const imageIcon = document.querySelector(".image-container .image-overlay i");
 
     function seeMoreClickHandler(index){
         const pane = panes[index];
@@ -203,7 +401,143 @@ function artistDetailsScript(){
         tabs[index].classList.add("active");
         pane.classList.add("active");
     }
+    function validateForm() {
+        const name = document.getElementById('name').value.trim();
+        const author = document.getElementById('author').value.trim();
+        const releaseDate = document.getElementById('releaseDate').value.trim();
+        const lyrics = document.getElementById('lyrics').value.trim();
+        const audioUrl = document.getElementById('audioUrl').value; // File input không cần trim
+        const imageUrl = document.getElementById('imageUrl').value; // File input không cần trim
+        const genreId = document.getElementById('genreId').value;
+
+        if (!name || !author || !releaseDate || !lyrics || !audioUrl || !imageUrl || !genreId) {
+            alert('Vui lòng nhập đầy đủ thông tin.')
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateAlbumForm(){
+        const releaseDate = document.getElementById('albumReleaseDate').value.trim();
+        const description = document.getElementById('albumDescription').value.trim();
+        const title = document.getElementById('albumTitle').value.trim();
+        const img = document.getElementById('albumImage').value;
+
+        if(!releaseDate || !description || !title || !img || selectedSongIds.length === 0) {
+            alert('Vui lòng nhập đầy đủ thông tin.')
+            return false;
+        }
+
+        return true;
+    }
+
+    function addSong() {
+        const audioFile = document.getElementById('audioUrl').files[0]; // File input không cần trim
+        const imageFile = document.getElementById('imageUrl').files[0]; // File input không cần trim
+
+        let requestBody = {
+            name: document.getElementById('name').value.trim(),
+            author: document.getElementById('author').value.trim(),
+            releaseDate: formatDate(document.getElementById('releaseDate').value.trim()),
+            lyrics: document.getElementById('lyrics').value.trim().replaceAll('\n', '<br>'),
+            audioUrl: "",
+            imageUrl: "",
+            genreId: parseInt(document.getElementById('genreId').value),
+            albumId: parseInt(document.getElementById('genreId').value),
+            artistIds: [parseInt(artistId)],
+            isPremium: document.getElementById('isPremium').checked
+        }
+
+        async function uploadFilesAndSetRequestBody(audioFile, imageFile) {
+            const audioFormData = new FormData();
+            audioFormData.set("file", audioFile);
+
+            const imageFormData = new FormData();
+            imageFormData.set("file", imageFile);
+
+            const [audioUploadResult, imageUploadResult] = await Promise.all([
+                fileService.uploadFile(audioFormData, "audio"),
+                fileService.uploadFile(imageFormData, "img")
+            ]);
+
+            requestBody.audioUrl = audioUploadResult.data;
+            requestBody.imageUrl = imageUploadResult.data;
+        }
+
+        console.log(requestBody)
+
+        uploadFilesAndSetRequestBody(audioFile, imageFile)
+            .then(() => {
+                console.log('Cả hai file đã được upload và requestBody đã được cập nhật');
+                songService.addSong(requestBody)
+                    .then(result => {
+                        spinner.classList.remove('show');
+                        spinner.style.opacity = "0";
+                        showToast(result.message, "", false)
+                        closeModal()
+                        loadContentByUrl(window.location.href)
+                    });
+            })
+            .catch(error => {
+                spinner.classList.remove('show');
+                spinner.style.opacity = "0";
+                console.error('Đã xảy ra lỗi trong quá trình upload:', error);
+            });
+    }
+    function closeModal(){
+        let myModalEl = document.getElementById('addSongModal');
+        let modal = bootstrap.Modal.getInstance(myModalEl);
+        modal.hide();
+    }
+
+    function closeAlbumModal(){
+        let myModalEl = document.getElementById('addAlbumModal');
+        let modal = bootstrap.Modal.getInstance(myModalEl);
+        modal.hide();
+    }
 }
+
+function formatDate(rawReleaseDate){
+    const releaseDateObj = new Date(rawReleaseDate);
+
+    function padTo2Digits(num) {
+        return num.toString().padStart(2, '0');
+    }
+
+    return [
+        releaseDateObj.getFullYear(),
+        padTo2Digits(releaseDateObj.getMonth() + 1),
+        padTo2Digits(releaseDateObj.getDate()),
+    ].join('-');
+}
+
+function albumDetailScript(){
+    const playAllBtn = document.getElementById("btn-play-all");
+    const albumId = document.getElementById("album-id").value;
+    const favBtn = document.getElementById("fav-btn")
+
+    playAllBtn.addEventListener("click", async () => {
+        let fetchedSongs = await albumService.getSongsFromAlbum(albumId);
+        if(fetchedSongs.length > 0){
+            songs = fetchedSongs;
+            songIndex = 0;
+            currentSong = songs[songIndex];
+            console.log(songs)
+            loadSong(currentSong);
+            playSong();
+        }
+    })
+
+    favBtn.addEventListener('click', () => {
+        albumService.favouriteAlbum(albumId)
+            .then(resp => {
+                showToast(resp.message, "", false)
+                loadContentByUrl(window.location.href);
+            })
+    })
+}
+
 function playlistDetailScript() {
     const playlistId = document.getElementById("playlist-id").value;
     const playAllBtn = document.getElementById("btn-play-all");
@@ -422,6 +756,13 @@ function songDetailsScript() {
     const existPlaylistNameInput = document.getElementById("exists-playlist-name");
     const songId = document.getElementById("detail-song-id").value;
 
+    const spinner = document.getElementById("spinner");
+
+    const editNameBtn = document.getElementById("edit-name");
+    const editLyrics = document.getElementById("edit-lyrics");
+    const imageInput = document.getElementById("song-img");
+    const delSong = document.getElementById("delete-song");
+
     console.log(parseInt(songId) === currentSong.id)
     console.log(songId)
     console.log(currentSong.id)
@@ -435,7 +776,6 @@ function songDetailsScript() {
             playBtn.classList.remove("fa-circle-pause")
         }
     }
-
 
     document.querySelectorAll('input[name="to-playlist"]').forEach(input => {
         input.addEventListener('change', function() {
@@ -510,6 +850,114 @@ function songDetailsScript() {
                 })
         }
     })
+
+    if(editNameBtn){
+        editNameBtn.addEventListener('click', () => {
+            swal("Nhập tên bài hát:", {
+                content: {
+                    element: "input",
+                    attributes: {
+                        value: document.getElementById("song-name").textContent,
+                    },
+                },
+            })
+            .then((value) => {
+                if(value){
+                    swal("Bạn có chắc là muốn thay đổi tên bài hát?", {
+                        buttons: {
+                            cancel: "Hủy",
+                            ok: "Đồng ý",
+                        },
+                    })
+                    .then(clicked => {
+                        switch (clicked){
+                            case "ok" :
+                                songService.updateSongName(songId, value)
+                                    .then(result => {
+                                        loadContentByUrl(window.location.href);
+                                        showToast(result.message, "", false)
+                                    });
+                                break;
+                        }
+                    });
+                }
+            });
+
+        });
+
+        imageInput.addEventListener('change', () => {
+            const file = imageInput.files[0];
+
+            spinner.classList.add('show');
+            spinner.style.opacity = "0.5";
+            songService.updateSongImage(songId, file)
+                .then(result => {
+                    spinner.classList.remove('show');
+                    spinner.style.opacity = "0";
+                    showToast(result.message);
+                    loadContentByUrl(window.location.href);
+                })
+        })
+
+        let lyrics = document.getElementById("song-lyrics").innerHTML.replaceAll("<br>", "\n");
+        console.log(lyrics)
+
+        editLyrics.addEventListener('click', () => {
+            swal("Chỉnh sửa lời bài hát:", {
+                content: {
+                    element: "textarea",
+                    attributes: {
+                        value: lyrics,
+                        style: "height: 347px;"
+                    },
+                },
+            })
+            .then((value) => {
+                if(value){
+                    var editedLyrics = document.querySelector(".swal-content__textarea").value
+                    editedLyrics =  editedLyrics.toString().replaceAll("\n", "<br>")
+                    swal("Bạn có chắc là muốn thay đổi lời bài hát?", {
+                        buttons: {
+                            cancel: "Hủy",
+                            ok: "Đồng ý",
+                        },
+                    })
+                        .then(clicked => {
+                            switch (clicked){
+                                case "ok" :
+                                    songService.updateSongLyrics(songId, editedLyrics)
+                                        .then(result => {
+                                            loadContentByUrl(window.location.href);
+                                            showToast(result.message, "", false)
+                                        });
+                                    break;
+                            }
+                        });
+                }
+            });
+        });
+
+        delSong.addEventListener('click', () => {
+            swal("Bạn có chắc là muốn xóa bài hát này?", {
+                buttons: {
+                    cancel: "Hủy",
+                    ok: "Đồng ý",
+                },
+            })
+                .then(clicked => {
+                    switch (clicked){
+                        case "ok" :
+                            songService.deleteSong(songId)
+                                .then(result => {
+                                    loadContentByUrl("http://localhost:8080/home");
+                                    showToast(result.message, "", false)
+                                });
+                            break;
+                    }
+                });
+        })
+    }
+
     function closeModal(){
         let myModalEl = document.getElementById('add-to-playlist');
         let modal = bootstrap.Modal.getInstance(myModalEl);
@@ -519,7 +967,6 @@ function songDetailsScript() {
 function hideAllDivs() {
     var overlay = document.getElementById("overlay");
     var premiumDiv = document.querySelector('.premium-advert');
-    var mediumDiv = document.querySelector('.medium-advert');
 
     if (premiumDiv.style.display === "none") {
         overlay.style.display = "none";
@@ -537,9 +984,44 @@ function hideDiv2() {
     mediumDiv.style.display = 'none';
     hideAllDivs();
 }
+function showMediumAds(){
+    let mediumDiv = document.querySelector('.medium-advert');
+    if(mediumDiv){
+        mediumDiv.style.display = 'block';
+    }
+}
+
+function showPreAds(){
+    let overlay = document.getElementById("overlay");
+    let premiumDiv = document.querySelector('.premium-advert');
+
+    if(premiumDiv && overlay) {
+        premiumDiv.style.display = 'block';
+
+        if (premiumDiv.style.display === "none") {
+            overlay.style.display = "none";
+        } else {
+            overlay.style.display = "block";
+        }
+    }
+}
+
 function loadSong(song){
     title.innerText = song.name;
+    title.setAttribute("href", "http://localhost:8080/song-details?song_id=" + song.id);
+    title.addEventListener("click", e => {
+        e.preventDefault();
+        let url = title.getAttribute('href');
+        loadContentByUrl(url);
+    })
     artist.innerText = song.artists[0].artistName;
+    artist.setAttribute("href", "http://localhost:8080/artist-details?artist_id=" + song.artists[0].id);
+    artist.addEventListener("click", e => {
+        e.preventDefault();
+        let url = artist.getAttribute('href');
+        loadContentByUrl(url);
+    })
+
     audio.src = song.audioUrl;
     cover.src = song.imageUrl;
 
@@ -600,12 +1082,20 @@ function executeScripts(url) {
     } else if(url.includes("artist-details")) {
         artistDetailsScript();
         homeScript();
+    }else if(url.includes("album-details")){
+        albumDetailScript();
     }
 }
 
 function loadContent(e, t){
     e.preventDefault();
+    const searchResultElement = document.getElementById('custom-scrollbar');
     let url = t.getAttribute('href');
+
+    searchResultElement.style.display = 'none';
+    document.getElementById('search').value = '';
+
+    clearSearchResults();
     loadContentByUrl(url);
 }
 
@@ -640,10 +1130,10 @@ function loadContentByUrl(url){
     fetch(requestUrl)
         .then(response => response.text())
         .then(html => {
+            window.history.pushState({ path: url }, '', url);
             const root = document.getElementById('root');
             root.innerHTML = html;
             executeScripts(url)
-            window.history.pushState({ path: url }, '', url);
         });
 }
 
@@ -817,6 +1307,253 @@ function showToast(msg, url, redirect){
         onClick: function(){} // Callback after click
     }).showToast();
 }
+
+function fetchAndDisplayAds() {
+    fetch('/api/ad-package/for-display')
+        .then(response => response.json())
+        .then(data => {
+            const preAdImg = document.getElementById('preAdImg');
+            if(preAdImg){
+                if (data.data.preAdImg) {
+                    preAdImg.src = data.data.preAdImg;
+                    preAdImg.parentElement.style.display = '';
+                    showPreAds();
+                } else {
+                    let overlay = document.getElementById("overlay");
+                    if(overlay){
+                        document.getElementById("overlay").style.display = 'none';
+                    }
+                    preAdImg.parentElement.style.display = 'none';
+                }
+            }
+
+            const medAdImg = document.getElementById('medAdImg');
+            if(medAdImg){
+                if (data.data.medAdImg) {
+                    medAdImg.src = data.data.medAdImg;
+                    medAdImg.parentElement.style.display = '';
+                    showMediumAds();
+                } else {
+                    medAdImg.parentElement.style.display = 'none';
+                }
+            }
+
+            const norAdImg = document.getElementById('norAdImg');
+            if(norAdImg){
+                if (data.data.norAdImg) {
+                    norAdImg.src = data.data.norAdImg;
+                    norAdImg.parentElement.style.display = '';
+                } else {
+                    norAdImg.parentElement.style.display = 'none';
+                }
+            }
+
+            console.log(data);
+        })
+        .catch(error => console.error('Error fetching ad data:', error));
+}
+
+fetchAndDisplayAds();
+
+function fetchAdsRandomly() {
+    fetchAndDisplayAds();
+    console.log("Ads loaded at: " + new Date().toLocaleTimeString());
+
+    let randomDelay = Math.random() * (120000 - 60000) + 60000;
+
+    setTimeout(fetchAdsRandomly, randomDelay);
+}
+
+async function fetchSearchResults(searchKey) {
+    const url = `/api/search?key=${encodeURIComponent(searchKey)}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+
+        const songResults = document.querySelector('.song-result');
+        songResults.innerHTML = data.songs.map(song => `
+            <div>
+                <a onclick="loadContent(event, this)" class="search-item" href="/song-details?song_id=${song.id}">
+                    <img src="${song.imageUrl}" alt="anh">
+                    <div class="song-info">
+                        <h6 class="single-line-text song-name">${song.name}</h6>
+                        <span class="artist">${song.artists.map(artist => artist.artistName).join(", ")}</span>
+                    </div>
+                </a>
+            </div>
+        `).join('');
+
+        const albumResults = document.querySelector('.album-result');
+        albumResults.innerHTML = data.albums.map(album => `
+            <div>
+                <a onclick="loadContent(event, this)" class="search-item" href="/album-details?album_id=${album.id}">
+                    <img src="${album.imageUrl}" alt="anh">
+                    <div class="song-info">
+                        <h6 class="single-line-text album-name">${album.title}</h6>
+                        <span class="artist">${album.artist}</span>
+                    </div>
+                </a>
+            </div>
+        `).join('');
+
+        const artistResults = document.querySelector('.artist-result');
+        artistResults.innerHTML = data.artists.map(artist => `
+            <div>
+                <a onclick="loadContent(event, this)" class="search-item" href="/artist-details?artist_id=${artist.id}">
+                    <img src="${artist.image}" alt="anh">
+                    <div class="song-info">
+                        <h6 class="single-line-text artist-name">${artist.artistName}</h6>
+                    </div>
+                </a>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Failed to fetch search results:', error);
+    }
+}
+
+function debounce(callback, delay) {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            callback.apply(this, args);
+        }, delay);
+    };
+}
+
+function clearSearchResults() {
+    document.querySelector('.song-result').innerHTML = '';
+    document.querySelector('.album-result').innerHTML = '';
+    document.querySelector('.artist-result').innerHTML = '';
+}
+
+function sortApproachStat(data){
+    const sortedArray = Object.entries(data).sort((a, b) => {
+        const dateA = new Date(a[0].split('/').reverse().join('/'));
+        const dateB = new Date(b[0].split('/').reverse().join('/'));
+
+        return dateA - dateB;
+    });
+
+    return Object.fromEntries(sortedArray);
+}
+
+const debouncedFetchSearchResults = debounce(fetchSearchResults, 300);
+
+let noApproachChart;
+
+let requestInfos = document.querySelectorAll('.request-info');
+requestInfos.forEach(modal => {
+    modal.addEventListener('click', function (event) {
+        let requestId = this.getAttribute('data-request-id');
+        let isActive = this.getAttribute('data-request-active');
+        let apiUrl = '/api/ad-package/ad/' + requestId;
+        let approachStatWrapper = document.getElementById('approachStatWrapper');
+        approachStatWrapper.style.display = "none";
+
+        if(isActive.toLowerCase() === 'true'){
+            if(noApproachChart){
+                noApproachChart.destroy();
+            }
+            approachStatWrapper.style.display = "block";
+
+            const approachStatisticsData = {
+                labels: [],
+                datasets: [
+                    {
+                        label: "Lượt tiếp cận quảng cáo",
+                        borderColor: "blue",
+                        data: [],
+                        tension: 0.4,
+                    }
+                ],
+            }
+            const approachStatisticsConfig = {
+                type: "line",
+                data: approachStatisticsData,
+            }
+
+            let noApproach = document.getElementById('approachStatistics');
+            noApproachChart = new Chart(noApproach, approachStatisticsConfig)
+
+            fetch(`/api/statistic/ad/${requestId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200 && data.status) {
+                        let stat = sortApproachStat(data.data);
+
+                        noApproachChart.data.labels = Object.keys(stat)
+                        noApproachChart.data.datasets[0].data = Object.values(stat);
+                        noApproachChart.update();
+                    }
+                })
+                .catch(error => console.error('Error fetching annual statistics:', error));
+        }
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.status && data.data) {
+                    let adData = data.data;
+                    document.getElementById('requestId').textContent = adData.id;
+                    document.getElementById('adBoughtDate').textContent = new Date(adData.boughtDate).toLocaleString();
+                    document.getElementById('adExpirationDate').textContent = new Date(adData.expirationDate).toLocaleString();
+                    document.getElementById('paymentMethod').textContent = adData.paymentMethod;
+                    document.getElementById('amount').textContent = new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).format(adData.amount);
+                    document.getElementById('status').textContent = adData.stringStatus;
+                    document.getElementById('productName').textContent = adData.productName;
+                    document.getElementById('productImage').src = adData.imageUrl;
+                    document.getElementById('fullName').textContent = adData.contactInfo.fullName;
+                    document.getElementById('birthDate').textContent = adData.contactInfo.birthDay;
+                    document.getElementById('position').textContent = adData.contactInfo.position;
+                    document.getElementById('phoneNumber').textContent = adData.contactInfo.phoneNumber;
+                    document.getElementById('email').textContent = adData.contactInfo.email;
+                    document.getElementById('legalDocId').textContent = adData.contactInfo.legalDocId;
+                    document.getElementById('issuedBy').textContent = adData.contactInfo.issuedBy;
+                    document.getElementById('dated').textContent = adData.contactInfo.dated;
+                    document.getElementById('address').textContent = adData.contactInfo.address;
+                    document.getElementById('enterpriseName').textContent = adData.enterpriseInfo.name;
+                    document.getElementById('enterpriseAddress').textContent = adData.enterpriseInfo.address;
+                    document.getElementById('enterprisePhoneNumber').textContent = adData.enterpriseInfo.phoneNumber;
+                    document.getElementById('enterpriseEmail').textContent = adData.enterpriseInfo.email;
+                    document.getElementById('enterpriseWebsite').href = adData.enterpriseInfo.websiteLink;
+                    document.getElementById('enterpriseWebsite').textContent = adData.enterpriseInfo.websiteLink;
+                }
+            })
+            .catch(error => console.error('Error fetching ad data:', error));
+    });
+});
+
+document.getElementById('search').addEventListener('input', function() {
+    const searchKey = this.value.trim();
+    const searchResultElement = document.getElementById('custom-scrollbar');
+
+    if (searchKey) {
+        searchResultElement.style.display = 'block';
+        debouncedFetchSearchResults(searchKey);
+    } else {
+        clearSearchResults();
+        searchResultElement.style.display = 'none';
+    }
+});
+
+document.getElementsByClassName('search-close-btn')[0].addEventListener('click', () => {
+    const searchResultElement = document.getElementById('custom-scrollbar');
+
+    clearSearchResults();
+    searchResultElement.style.display = 'none';
+})
+
+fetchAdsRandomly();
 
 newPlaylist.addEventListener('click', () => {
     swal("Nhập tên playlist:", {

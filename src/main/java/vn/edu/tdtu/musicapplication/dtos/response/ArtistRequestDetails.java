@@ -30,4 +30,18 @@ public class ArtistRequestDetails {
     private List<LegalDocument> legalDocuments;
     private MinimizedUser user;
     private ArtistInfoDetails artistInfo;
+
+    public String getStringStatus(){
+        switch (this.getStatus()){
+            case "APPROVED" -> {
+                return "Đã phê duyệt";
+            }
+            case "NOT_APPROVED" -> {
+                return "Từ chối";
+            }
+            default -> {
+                return "Đang chờ";
+            }
+        }
+    }
 }

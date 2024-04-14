@@ -1,0 +1,70 @@
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="stat-widget-one card-body">
+                        <div class="stat-icon d-inline-block">
+                            <i class="fa-regular fa-circle-play" style="color: #b0b225;"></i>
+                        </div>
+                        <div class="stat-content d-inline-block">
+                            <div class="stat-text">Bài hát</div>
+                            <div class="stat-digit" th:text="${countSongs}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="stat-widget-one card-body">
+                        <div class="stat-icon d-inline-block">
+                            <i class="ti-user text-primary border-primary"></i>
+                        </div>
+                        <div class="stat-content d-inline-block">
+                            <div class="stat-text">Người dùng</div>
+                            <div class="stat-digit" th:text="${countUsers}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="stat-widget-one card-body">
+                        <div class="stat-icon d-inline-block">
+                            <i class="fa-brands fa-napster" style="color: #21bde4;"></i>
+                        </div>
+                        <div class="stat-content d-inline-block">
+                            <div class="stat-text">Nghệ sĩ</div>
+                            <div class="stat-digit" th:text="${countArtists}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="stat-widget-one card-body">
+                        <div class="stat-icon d-inline-block">
+                            <i class="fa-solid fa-compact-disc" style="color: #ff2e2e;"></i>
+                        </div>
+                        <div class="stat-content d-inline-block">
+                            <div class="stat-text">Album</div>
+                            <div class="stat-digit" th:text="${countAlbums}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div><h3>Biểu đồ thống kê doanh thu</h3></div>
+        <div class="row">
+            <div class="col-6 mt-5">
+                <canvas id="annualRevenue" style="width: 100%;"></canvas>
+            </div>
+            <div class="col-6 mt-5">
+                <canvas id="monthlyRevenue" style="width: 100%;"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>

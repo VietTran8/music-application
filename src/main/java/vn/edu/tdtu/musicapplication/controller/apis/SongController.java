@@ -3,8 +3,12 @@ package vn.edu.tdtu.musicapplication.controller.apis;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.AddSongRequest;
+import vn.edu.tdtu.musicapplication.dtos.request.UpdateSongImgReq;
+import vn.edu.tdtu.musicapplication.dtos.request.UpdateSongLyricsReq;
+import vn.edu.tdtu.musicapplication.dtos.request.UpdateSongNameReq;
 import vn.edu.tdtu.musicapplication.service.SongService;
 
 import java.security.Principal;
@@ -17,6 +21,24 @@ public class SongController {
     @PostMapping("/update/{id}")
     public ResponseEntity<?> updateSong(@PathVariable("id") Long id, @RequestBody AddSongRequest requestBody){
         BaseResponse<?> response = songService.updateSong(id, requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/update-name")
+    public ResponseEntity<?> updateSongName(@RequestBody UpdateSongNameReq requestBody){
+        BaseResponse<?> response = songService.updateSongName(requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/update-lyrics")
+    public ResponseEntity<?> updateSongLyrics(@RequestBody UpdateSongLyricsReq requestBody){
+        BaseResponse<?> response = songService.updateSongLyrics(requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/update-image")
+    public ResponseEntity<?> updateSongImage(@RequestParam("songId") Long id, @RequestParam("file") MultipartFile file){
+        BaseResponse<?> response = songService.uploadSongImage(id, file);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 

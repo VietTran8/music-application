@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.FollowUserRequest;
+import vn.edu.tdtu.musicapplication.dtos.request.admin.AdUpdateUserRoleReq;
 import vn.edu.tdtu.musicapplication.service.UserService;
 
 import java.security.Principal;
@@ -29,4 +30,19 @@ public class UserController {
 
         return ResponseEntity.status(response.getCode()).body(response);
     }
+
+    @PostMapping("/disable/{userId}")
+    public ResponseEntity<?> disableUser(@PathVariable("userId") Long userId){
+        BaseResponse<?> response = userService.disableUser(userId);
+
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/role/update")
+    public ResponseEntity<?> updateUserRole(@RequestBody AdUpdateUserRoleReq req){
+        BaseResponse<?> response = userService.updateUserRole(req);
+
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
 }

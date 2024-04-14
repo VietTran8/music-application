@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Entity
 @AllArgsConstructor
@@ -85,5 +86,11 @@ public class User {
                     }
                 })
                 .orElse(null);
+    }
+
+    public String getRoleString(){
+        return this.getRoles().stream().map(
+                r -> r.getName().description
+        ).collect(Collectors.joining(" - "));
     }
 }

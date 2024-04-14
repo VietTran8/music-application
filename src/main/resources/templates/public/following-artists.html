@@ -1,0 +1,27 @@
+<h5 style="color: #000; margin: 20px 20px">Nghệ sĩ theo dõi</h5>
+<div style="margin: 20px 20px; border-radius: 4px; padding-top: 12px; padding-bottom: 100px">
+    <div class="container-fluid">
+        <div class="row">
+            <div th:each="artist : ${artists}" class="col-lg-2 col-md-4 col-sm-6" style="margin-top: 16px;">
+                <div style="display:flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 50px;" class="cusor">
+                    <div style="width: 150px; height: 150px; position: relative">
+                        <img style="border-radius: 50%; object-fit: cover; width: 150px; height: 150px"
+                             th:src="${(artist.getImage() != null and !artist.getImage().isEmpty()) ? artist.getImage() : '/img/user.png'}" alt="">
+
+                        <a onclick="loadContent(event, this)" th:href="@{|/artist-details?artist_id=${artist.getId()}|}" class="artist-action-bg">
+                            <div class="open-btn">
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 30px"></i>
+                            </div>
+                        </a>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h6 style="color: #000000; font-size: 15px;">
+                            <span th:text="${artist.getArtistName()}"></span>
+                            <i th:if="!${artist.isCreatedByAdmin()}" class="bi bi-patch-check-fill t-info ms-1"></i>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

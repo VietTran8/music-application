@@ -7,6 +7,8 @@ import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.admin.AddGenreRequest;
 import vn.edu.tdtu.musicapplication.service.GenreService;
 
+import java.util.List;
+
 @RequestMapping("/api/genre")
 @RestController
 @RequiredArgsConstructor
@@ -15,6 +17,13 @@ public class GenreController {
     @PostMapping("/add")
     public ResponseEntity<?> addGenre(@RequestBody AddGenreRequest requestBody){
         BaseResponse<?> response = genreService.saveGenre(requestBody);
+
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/add-all")
+    public ResponseEntity<?> addAllGenre(@RequestBody List<AddGenreRequest> requestBody){
+        BaseResponse<?> response = genreService.saveAllGenre(requestBody);
 
         return ResponseEntity.status(response.getCode()).body(response);
     }

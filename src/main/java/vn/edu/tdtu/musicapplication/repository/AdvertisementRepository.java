@@ -9,6 +9,7 @@ import vn.edu.tdtu.musicapplication.enums.EAdType;
 import vn.edu.tdtu.musicapplication.models.advertisement.Advertisement;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {

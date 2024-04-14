@@ -14,14 +14,18 @@ import vn.edu.tdtu.musicapplication.dtos.request.DeleteSongFromAlbumRequest;
 import vn.edu.tdtu.musicapplication.dtos.response.AlbumDetails;
 import vn.edu.tdtu.musicapplication.dtos.response.FavouriteResponse;
 import vn.edu.tdtu.musicapplication.dtos.response.MinimizedAlbum;
+import vn.edu.tdtu.musicapplication.dtos.response.MinimizedSong;
 import vn.edu.tdtu.musicapplication.mappers.request.AddAlbumRequestMapper;
 import vn.edu.tdtu.musicapplication.mappers.response.MinimizedAlbumMapper;
+import vn.edu.tdtu.musicapplication.mappers.response.MinimizedSongMapper;
 import vn.edu.tdtu.musicapplication.models.Album;
+import vn.edu.tdtu.musicapplication.models.Playlist;
 import vn.edu.tdtu.musicapplication.models.Song;
 import vn.edu.tdtu.musicapplication.models.User;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
 import vn.edu.tdtu.musicapplication.repository.AlbumRepository;
 import vn.edu.tdtu.musicapplication.repository.SongRepository;
+import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -33,10 +37,12 @@ import java.util.List;
 public class AlbumService {
     private final AlbumRepository albumRepository;
     private final MinimizedAlbumMapper minimizedAlbumMapper;
+    private final MinimizedSongMapper minimizedSongMapper;
     private final AddAlbumRequestMapper addAlbumRequestMapper;
     private final ArtistService artistService;
     private final SongRepository songRepository;
     private final UserService userService;
+    private final PrincipalUtils principalUtils;
     @Getter
     private int totalPages = 1;
 
@@ -48,8 +54,34 @@ public class AlbumService {
         return id != null ? albumRepository.findById(id).orElse(null) : null;
     }
 
+    public Long countTotalAlbums(){
+        return albumRepository.countAllByActive(true);
+    }
+
     public Album save(Album album){
         return albumRepository.save(album);
+    }
+
+    public BaseResponse<List<MinimizedSong>> getSongsFromAlbumResp(Long albumId){
+        BaseResponse<List<MinimizedSong>> baseResponse = new BaseResponse<>();
+        baseResponse.setMessage("Data fetched successfully!");
+        baseResponse.setStatus(true);
+        baseResponse.setCode(HttpServletResponse.SC_OK);
+        baseResponse.setData(getSongsFromAlbum(albumId));
+
+        return baseResponse;
+    }
+
+    public List<MinimizedSong> getSongsFromAlbum(Long albumId){
+        Album foundAlbum = findById(albumId);
+
+        if(foundAlbum != null && foundAlbum.getActive()){
+            List<Song> songs = foundAlbum.getSongs().stream().filter(Song::getActive).toList();
+
+            return songs.stream().map(minimizedSongMapper::mapToDto).toList();
+        }
+
+        return new ArrayList<>();
     }
 
     public BaseResponse<?> saveAlbum(AddAlbumRequest request){
@@ -65,8 +97,23 @@ public class AlbumService {
         return response;
     }
 
+    public BaseResponse<?> saveAllAlbum(List<AddAlbumRequest> request){
+        request.forEach(r -> {
+            Album album = addAlbumRequestMapper.mapToObject(r);
+            albumRepository.save(album);
+        });
+
+        BaseResponse<MinimizedAlbum> response = new BaseResponse<>();
+        response.setStatus(true);
+        response.setMessage("Album added successfully");
+        response.setData(null);
+        response.setCode(HttpServletResponse.SC_CREATED);
+
+        return response;
+    }
+
     public BaseResponse<?> getAlbumsByName(String name){
-        List<Album> albums = albumRepository.findByTitleContainingIgnoreCase(name);
+        List<Album> albums = albumRepository.findByTitleContainingIgnoreCaseOrArtistInfoArtistNameContainingIgnoreCase(name, name);
         List<MinimizedAlbum> minimizedAlbums = new ArrayList<>();
         BaseResponse<List<MinimizedAlbum>> response = new BaseResponse<>();
 
@@ -151,14 +198,14 @@ public class AlbumService {
 
     public BaseResponse<?> favourite(Principal principal, Long albumId){
         BaseResponse<FavouriteResponse> response = new BaseResponse<>();
-        response.setMessage("You are not authenticated");
+        response.setMessage("Chưa đăng nhập");
         response.setCode(HttpServletResponse.SC_UNAUTHORIZED);
         response.setData(null);
         response.setStatus(false);
 
         if(principal != null){
             Album foundAlbum = findById(albumId);
-            User foundUser = userService.findByEmail(principal.getName());
+            User foundUser = principalUtils.loadUserFromPrincipal(principal);
             response.setMessage("Album not found with id: " + albumId);
             response.setCode(HttpServletResponse.SC_BAD_REQUEST);
             response.setData(null);
@@ -170,12 +217,12 @@ public class AlbumService {
                 if(!foundUser.getFavouriteAlbums().contains(foundAlbum)){
                     foundUser.getFavouriteAlbums().add(foundAlbum);
                     favourite.setStatus(false);
-                    response.setMessage("Unliked this album: " + albumId);
+                    response.setMessage("Đã thích album");
                 }
                 else{
                     foundUser.getFavouriteAlbums().remove(foundAlbum);
                     favourite.setStatus(true);
-                    response.setMessage("Liked this album: " + albumId);
+                    response.setMessage("Đã bỏ thích album");
                 }
 
                 userService.saveUser(foundUser);
@@ -266,6 +313,23 @@ public class AlbumService {
         });
 
         totalPages = albums.getTotalPages();
+
+        response.setCode(HttpServletResponse.SC_OK);
+        response.setStatus(true);
+        response.setMessage("Albums fetched successfully");
+        response.setData(minimizedArtistInfos);
+
+        return response;
+    }
+
+    public BaseResponse<List<MinimizedAlbum>> getAllAlbums(){
+        BaseResponse<List<MinimizedAlbum>> response = new BaseResponse<>();
+
+        List<MinimizedAlbum> minimizedArtistInfos = new ArrayList<>();
+        List<Album> albums = albumRepository.findByActive(true);
+        albums.forEach(album -> {
+            minimizedArtistInfos.add(minimizedAlbumMapper.mapToDto(album));
+        });
 
         response.setCode(HttpServletResponse.SC_OK);
         response.setStatus(true);

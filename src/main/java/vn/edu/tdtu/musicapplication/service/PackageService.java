@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.AddUserPackageBoughtRequest;
@@ -23,7 +25,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -84,20 +88,12 @@ public class PackageService {
         response.setStatus(false);
 
         if(mPackage != null && mPackage.getActive()){
-            if(!packageRepository.existsByNameAndActive(request.getName(), true)) {
-                addPackageRequestMapper.bindFromDto(mPackage, request);
-                packageRepository.save(mPackage);
+            addPackageRequestMapper.bindFromDto(mPackage, request);
+            packageRepository.save(mPackage);
 
-                response.setMessage("Package updated successfully");
-                response.setCode(HttpServletResponse.SC_ACCEPTED);
-                response.setData(mPackage);
-                response.setStatus(true);
-            }else{
-                response.setStatus(false);
-                response.setMessage("This package has already existed");
-                response.setData(null);
-                response.setCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
-            }
+            response.setMessage("Package updated successfully");
+            response.setCode(HttpServletResponse.SC_ACCEPTED);
+            response.setData(mPackage);
         }
 
         return response;
@@ -130,6 +126,22 @@ public class PackageService {
         BaseResponse<List<Package>> response = new BaseResponse<>();
         response.setMessage("Packages fetched successfully");
         response.setData(packages);
+        response.setStatus(true);
+        response.setCode(HttpServletResponse.SC_OK);
+
+        return response;
+    }
+
+    public BaseResponse<Map<String, Object>> getAllPackagesForView(int page, int limit){
+        Page<Package> packages = packageRepository.findByActive(true, PageRequest.of(page - 1, limit));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalPages", packages.getTotalPages());
+        data.put("packages", packages.get());
+
+        BaseResponse<Map<String, Object>> response = new BaseResponse<>();
+        response.setMessage("Packages fetched successfully");
+        response.setData(data);
         response.setStatus(true);
         response.setCode(HttpServletResponse.SC_OK);
 

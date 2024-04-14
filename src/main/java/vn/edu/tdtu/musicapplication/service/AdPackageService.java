@@ -24,21 +24,23 @@ import vn.edu.tdtu.musicapplication.mappers.request.AddAdPackRequestMapper;
 import vn.edu.tdtu.musicapplication.mappers.request.RequestAdRequestMapper;
 import vn.edu.tdtu.musicapplication.models.Bill;
 import vn.edu.tdtu.musicapplication.models.User;
+import vn.edu.tdtu.musicapplication.models.advertisement.AdStatistics;
 import vn.edu.tdtu.musicapplication.models.advertisement.Advertisement;
 import vn.edu.tdtu.musicapplication.models.advertisement.AdvertisementPackage;
 import vn.edu.tdtu.musicapplication.models.advertisement.ContactInfo;
+import vn.edu.tdtu.musicapplication.repository.AdStatisticsRepository;
 import vn.edu.tdtu.musicapplication.repository.AdvertisementPackageRepository;
 import vn.edu.tdtu.musicapplication.repository.AdvertisementRepository;
 import vn.edu.tdtu.musicapplication.service.cloudinary.FileServiceImpl;
 import vn.edu.tdtu.musicapplication.service.mail.MailService;
 import vn.edu.tdtu.musicapplication.utils.FileHandle;
+import vn.edu.tdtu.musicapplication.utils.PrincipalUtils;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,9 +51,11 @@ public class AdPackageService {
     private final AdvertisementRepository adRepository;
     private final AddAdPackRequestMapper addAdPackRequestMapper;
     private final RequestAdRequestMapper requestAdRequestMapper;
-    private final UserService userService;
     private final MailService mailService;
     private final Configuration config;
+    private final PrincipalUtils principalUtils;
+    private final UserService userService;
+    private final AdStatisticsRepository adStatisticsRepository;
     private static final String CREATE_PAYMENT_URL = "http://localhost:8080/payment/ad/create-payment";
 
     public AdvertisementPackage findById(Long id){
@@ -101,20 +105,13 @@ public class AdPackageService {
         response.setStatus(false);
 
         if(mPackage != null && mPackage.getActive()){
-            if(!adPackRepository.existsByNameAndActive(request.getName(), true)) {
-                addAdPackRequestMapper.bindFromDto(mPackage, request);
-                adPackRepository.save(mPackage);
+            addAdPackRequestMapper.bindFromDto(mPackage, request);
+            adPackRepository.save(mPackage);
 
-                response.setMessage("Package updated successfully");
-                response.setCode(HttpServletResponse.SC_ACCEPTED);
-                response.setData(mPackage);
-                response.setStatus(true);
-            }else{
-                response.setStatus(false);
-                response.setMessage("This package has already existed");
-                response.setData(null);
-                response.setCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
-            }
+            response.setMessage("Package updated successfully");
+            response.setCode(HttpServletResponse.SC_ACCEPTED);
+            response.setData(mPackage);
+            response.setStatus(true);
         }
 
         return response;
@@ -157,6 +154,16 @@ public class AdPackageService {
         return response;
     }
 
+    public Map<String, Object> getAllPackages(int page, int size){
+        Page<AdvertisementPackage> packages = adPackRepository.findByActive(true, PageRequest.of(page - 1, size));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalPages", packages.getTotalPages());
+        data.put("packages", packages.get());
+
+        return data;
+    }
+
     public BaseResponse<?> getPackageById(Long id){
         AdvertisementPackage mPackage = adPackRepository.findById(id).orElse(null);
         BaseResponse<AdvertisementPackage> response = new BaseResponse<>();
@@ -185,7 +192,7 @@ public class AdPackageService {
         if(principal != null){
             Advertisement advertisement = requestAdRequestMapper.mapToObject(request);
             AdvertisementPackage adPackage = findById(request.getPackageId());
-            User foundUser = userService.findByEmail(principal.getName());
+            User foundUser = principalUtils.loadUserFromPrincipal(principal);
 
             response.setMessage("Package not found with id: " + request.getPackageId());
             response.setCode(HttpServletResponse.SC_BAD_REQUEST);
@@ -282,7 +289,7 @@ public class AdPackageService {
                     model.put("duration",advertisement.getAPackage().getUnit().days);
                     model.put("createPaymentUrl", createPaymentUrl);
 
-                    Template t = config.getTemplate("hopdong.html");
+                    Template t = config.getTemplate("public/hopdong.html");
                     String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
 
                     mailDetails.setText(html);
@@ -294,8 +301,10 @@ public class AdPackageService {
         }
     }
 
-    public BaseResponse<?> getAllAds(){
+    public BaseResponse<List<Advertisement>> getAllAds(){
         List<Advertisement> ads = adRepository.findAll();
+
+        ads.sort(Comparator.comparingDouble(Advertisement::getId).reversed());
 
         BaseResponse<List<Advertisement>> response = new BaseResponse<>();
         response.setMessage("Ads fetched successfully");
@@ -318,7 +327,7 @@ public class AdPackageService {
         return response;
     }
 
-    public BaseResponse<?> getAd(HttpSession session){
+    public BaseResponse<?> getAd(Principal principal, HttpSession session){
         Integer premiumAdPage = (Integer) session.getAttribute("premiumAdPage");
         Integer medAdPage = (Integer) session.getAttribute("medAdPage");
         Integer norAdPage = (Integer) session.getAttribute("norAdPage");
@@ -349,14 +358,33 @@ public class AdPackageService {
             session.setAttribute("norAdPage", 0);
         }
 
+        return getBaseResponse(principal, preAdList, norAdList, medAdList);
+    }
+
+    private BaseResponse<AdResponse> getBaseResponse(Principal principal, List<Advertisement> preAdList, List<Advertisement> norAdList, List<Advertisement> medAdList) {
         AdResponse data = new AdResponse();
 
-        if(!preAdList.isEmpty())
-            data.setPreAdImg(preAdList.get(0).getImageUrl());
-        if(!norAdList.isEmpty())
-            data.setNorAdImg(norAdList.get(0).getImageUrl());
-        if(!medAdList.isEmpty())
-            data.setMedAdImg(medAdList.get(0).getImageUrl());
+        if(!preAdList.isEmpty()){
+            Advertisement ad = preAdList.get(0);
+            data.setPreAdImg(ad.getImageUrl());
+            increaseAdStatistics(principal, ad);
+
+            adRepository.save(ad);
+        }
+        if(!norAdList.isEmpty()){
+            Advertisement ad = norAdList.get(0);
+            data.setNorAdImg(ad.getImageUrl());
+            increaseAdStatistics(principal, ad);
+
+            adRepository.save(ad);
+        }
+        if(!medAdList.isEmpty()){
+            Advertisement ad = medAdList.get(0);
+            data.setMedAdImg(ad.getImageUrl());
+            increaseAdStatistics(principal, ad);
+
+            adRepository.save(ad);
+        }
 
         BaseResponse<AdResponse> response = new BaseResponse<>();
         response.setStatus(true);
@@ -365,5 +393,58 @@ public class AdPackageService {
         response.setData(data);
 
         return response;
+    }
+
+    public BaseResponse<?> getAdsStatistic(Long adId){
+        BaseResponse<Map<String, Long>> response = new BaseResponse<>();
+        Map<String, Long> data = new HashMap<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");;
+
+        adRepository.findById(adId).ifPresentOrElse(
+            ad -> {
+                LocalDateTime startDate = ad.getBoughtDate();
+                LocalDateTime endDate = ad.getExpirationDate();
+
+                for(; startDate.isBefore(endDate.plusDays(1)); startDate = startDate.plusDays(1)){
+                    AdStatistics adStatistics = adStatisticsRepository.findByDateAndAdvertisement(startDate.toLocalDate(), ad).orElse(null);
+                    if(adStatistics != null){
+                        data.put(startDate.format(formatter), adStatistics.getTotalApproach());
+                    }else{
+                        data.put(startDate.format(formatter), 0L);
+                    }
+                }
+
+                response.setStatus(true);
+                response.setCode(200);
+                response.setData(data);
+                response.setMessage("Success");
+
+            }, () -> {
+                response.setStatus(false);
+                response.setCode(400);
+                response.setData(null);
+                response.setMessage("Ad not found with id: " + adId);
+
+            }
+        );
+
+        return response;
+    }
+
+    private void increaseAdStatistics(Principal principal, Advertisement ad){
+        if(principal == null || !principalUtils.loadUserFromPrincipal(principal).getId().equals(ad.getUser().getId())){
+            AdStatistics adStatistics = adStatisticsRepository.findByDateAndAdvertisement(LocalDate.now(), ad).orElse(null);
+            if(adStatistics != null){
+                adStatistics.setTotalApproach(adStatistics.getTotalApproach() + 1);
+            }else{
+                adStatistics = new AdStatistics();
+                adStatistics.setDate(LocalDate.now());
+                adStatistics.setAdvertisement(ad);
+                adStatistics.setTotalApproach(0);
+            }
+
+            adStatisticsRepository.save(adStatistics);
+        }
     }
 }

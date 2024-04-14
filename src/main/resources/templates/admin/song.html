@@ -1,0 +1,267 @@
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <form action="">
+            <div data-bs-toggle="modal" data-bs-target="#addSongModal" class="btn btn-success text-white" style="margin-bottom: 20px;">+ Thêm bài hát mới</div>
+        </form>
+        <table class="table">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Tên bài hát</th>
+                <th scope="col">Tên nghệ sĩ</th>
+                <th scope="col">Ngày phát hành</th>
+                <th scope="col">Âm thanh</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <tr th:each="song, songStat : ${data.songs}">
+                <th scope="row" class="text-dark" th:text="${song.id}"></th>
+                <td class="text-dark" th:text="${song.name}"></td>
+                <td class="text-dark" th:text="${song.getArtistNameString()}"></td>
+                <td class="text-dark" th:text="${#temporals.format(song.releaseDate, 'dd/MM/yyyy')}"></td>
+                <td class="text-dark">
+                    <audio controls>
+                        <source th:src="${song.audioUrl}" type="audio/wav">
+                        <source th:src="${song.audioUrl}" type="audio/mpeg">
+                        <source th:src="${song.audioUrl}" type="audio/aac">
+                        <source th:src="${song.audioUrl}" type="audio/flac">
+                        <source th:src="${song.audioUrl}" type="audio/ogg">
+                    </audio>
+                </td>
+                <td>
+                    <button th:data-song-id="${song.id}" type="button" class="btn btn-success btn-view" data-bs-toggle="modal" data-bs-target="#viewSongModal">Xem</button>
+                    <button th:data-song-id="${song.id}" type="button" class="btn btn-warning btn-edit" >Sửa</button>
+                    <button th:data-song-id="${song.id}" type="button" class="btn btn-danger btn-delete">Xóa</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-end">
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/song?page=${prevPage}|}" aria-label="Previous">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-left-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Trước</span>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, data.totalPages)}" class="page-item"><a class="page-link" th:href="@{|/admin/song?page=${i}|}" th:text="${i}" >1</a></li>
+                <li class="page-item">
+                    <a class="page-link" th:href="@{|/admin/song?page=${nextPage}|}" aria-label="Next">
+                        <span aria-hidden="true"><i class="fa-solid fa-arrow-right-long" style="color: #000000;"></i></span>
+                        <span class="sr-only">Sau</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- View song Modal -->
+<div class="modal fade" id="viewSongModal" tabindex="-1" aria-labelledby="addSongModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="viewSongModalLabel">Chi tiết nhạc</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="songImage" src="" class="img-fluid" alt="Lệ Lưu Ly">
+                        </div>
+
+                        <div class="col-md-6">
+                            <h2 id="songName"></h2>
+                            <p><strong>Ngày phát hành:</strong> <span id="releaseDateInfo"></span></p>
+                            <p><strong>Thể loại:</strong> <span id="genreInfo"></span></p>
+                            <p><strong>Nghệ sĩ:</strong> <span id="artistName"></span></p>
+                            <p><strong>Lời bài hát:</strong>
+                                <span id="lyricsInfo"></span>
+                            </p>
+                            <p><strong>Premium:</strong> <span id="isPremiumInfo"></span></p>
+                            <p><strong>Lượt thích:</strong> <span id="favourites"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add song Modal -->
+
+<!-- Add song Modal -->
+<div class="modal fade" id="addSongModal" tabindex="-1" aria-labelledby="addSongModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addSongModalLabel">Thêm nhạc</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Tên bài hát</label>
+                                    <input type="text" class="form-control" id="name" name="name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="author" class="form-label">Tác giả</label>
+                                    <input type="text" class="form-control" id="author" name="author">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="author" class="form-label">Nghệ sĩ</label>
+                                    <select class="form-select" id="artistId" name="artistId">
+                                        <option selected value="0">Chọn</option>
+                                        <th:block th:each="artist : ${artists}">
+                                            <option th:text="${artist.artistName}" th:value="${artist.id}"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="releaseDate" class="form-label">Ngày phát hành</label>
+                                    <input type="date" class="form-control" id="releaseDate" name="releaseDate">
+                                </div>
+                                <div class="mb-3 ms-3">
+                                    <input type="checkbox" class="form-check-input" id="isPremium" name="isPremium">
+                                    <label for="isPremium" class="form-label">Premium</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="lyrics" class="form-label">Lời bài hát</label>
+                                    <textarea class="form-control" id="lyrics" name="lyrics" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="audioUrl" class="form-label">File nhạc</label>
+                                    <input accept="audio/*" type="file" class="form-control" id="audioUrl" name="audioUrl">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="imageUrl" class="form-label">File hình ảnh</label>
+                                    <input accept="image/*" type="file" class="form-control" id="imageUrl" name="imageUrl">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="albumId" class="form-label">Album</label>
+                                    <select class="form-select" id="albumId" name="albumId">
+                                        <option selected value="0">Chọn</option>
+                                        <th:block th:each="album : ${albums}">
+                                            <option th:text="${album.getTitle()}" th:value="${album.getId()}"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="genreId" class="form-label">Thể loại</label>
+                                    <select class="form-select" id="genreId" name="genreId">
+                                        <th:block th:each="genre, stat : ${genres}">
+                                            <option th:text="${genre.getName()}" th:value="${genre.getId()}" th:attr="selected=${stat.first} ? 'selected' : null"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-add">Thêm</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add song Modal -->
+
+<!-- Edit song Modal -->
+<div class="modal fade" id="editSongModal" tabindex="-1" aria-labelledby="addSongModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editSongModalLabel">Thêm nhạc</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" id="update-song-id">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Tên bài hát</label>
+                                    <input type="text" class="form-control" id="updatedName" name="name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="author" class="form-label">Tác giả</label>
+                                    <input type="text" class="form-control" id="updatedAuthor" name="author">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="author" class="form-label">Nghệ sĩ</label>
+                                    <select class="form-select" id="updatedArtistId" name="artistId">
+                                        <option selected value="0">Chọn</option>
+                                        <th:block th:each="artist : ${artists}">
+                                            <option th:text="${artist.artistName}" th:value="${artist.id}"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="releaseDate" class="form-label">Ngày phát hành</label>
+                                    <input type="date" class="form-control" id="updatedReleaseDate" name="releaseDate">
+                                </div>
+                                <div class="mb-3 ms-3">
+                                    <input type="checkbox" class="form-check-input" id="updatedIsPremium" name="isPremium">
+                                    <label for="isPremium" class="form-label">Premium</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="lyrics" class="form-label">Lời bài hát</label>
+                                    <textarea class="form-control" id="updatedLyrics" name="lyrics" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="audioUrl" class="form-label">File nhạc</label>
+                                    <input accept="audio/*" type="file" class="form-control" id="updatedAudioUrl" name="audioUrl">
+                                    <input type="hidden" id="old-audio-file">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="imageUrl" class="form-label">File hình ảnh</label>
+                                    <input accept="image/*" type="file" class="form-control" id="updatedImageUrl" name="imageUrl">
+                                    <input type="hidden" id="old-image-file">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="albumId" class="form-label">Album</label>
+                                    <select class="form-select" id="updatedAlbumId" name="albumId">
+                                        <option selected value="0">Chọn</option>
+                                        <th:block th:each="album : ${albums}">
+                                            <option th:text="${album.getTitle()}" th:value="${album.getId()}"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="genreId" class="form-label">Thể loại</label>
+                                    <select class="form-select" id="updatedGenreId" name="genreId">
+                                        <th:block th:each="genre, stat : ${genres}">
+                                            <option th:text="${genre.getName()}" th:value="${genre.getId()}" th:attr="selected=${stat.first} ? 'selected' : null"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div type="button" class="button-other" data-bs-dismiss="modal">Đóng</div>
+                <div type="button" class="button" id="btn-edit">Sửa</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Add song Modal -->
+
+<script type="module" th:src="@{/assets/admin/js/song.js}"></script>
