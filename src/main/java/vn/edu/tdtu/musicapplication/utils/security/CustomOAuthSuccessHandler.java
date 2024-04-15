@@ -49,6 +49,7 @@ public class CustomOAuthSuccessHandler implements AuthenticationSuccessHandler {
                         .build();
 
                 userRepository.save(newUser);
+                log.info(newUser.getGoogleId());
             }
 
             log.info(((DefaultOAuth2User) authentication.getPrincipal()).getName());

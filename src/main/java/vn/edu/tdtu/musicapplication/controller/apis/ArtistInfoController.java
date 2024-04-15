@@ -7,6 +7,8 @@ import vn.edu.tdtu.musicapplication.dtos.BaseResponse;
 import vn.edu.tdtu.musicapplication.dtos.request.admin.AddArtistRequest;
 import vn.edu.tdtu.musicapplication.service.ArtistService;
 
+import java.util.List;
+
 @RequestMapping("/api/artist-info")
 @RestController
 @RequiredArgsConstructor
@@ -15,6 +17,12 @@ public class ArtistInfoController {
     @PostMapping("/add")
     public ResponseEntity<?> addArtistInfo(@RequestBody AddArtistRequest requestBody){
         BaseResponse<?> response = artistService.saveArtistInfo(requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/add-all")
+    public ResponseEntity<?> addAllArtistInfo(@RequestBody List<AddArtistRequest> requestBody){
+        BaseResponse<?> response = artistService.saveAllArtistInfo(requestBody);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 

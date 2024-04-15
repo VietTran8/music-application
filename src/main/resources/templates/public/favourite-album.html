@@ -13,7 +13,7 @@
                         <span th:text="${album.getArtist()}" class="artist-badge"></span>
                     </div>
                     <div class="card-body">
-                        <h6 class="card-title">
+                        <h6 class="card-title ellipsis">
                             <a th:text="${album.getTitle()}" onclick="loadContent(event, this)" th:href="@{|/album-details?album_id=${album.getId()}|}"></a>
                         </h6>
                         <p th:text="${album.getNoOfSongs()} + ' bài hát'" class="card-text" style="font-size: 12px;">10 bai hat</p>

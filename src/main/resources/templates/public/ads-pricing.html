@@ -50,7 +50,6 @@
       style="border-radius: 20px; overflow: hidden; box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;">
       <thead>
         <tr style="text-align: center;">
-          <th scope="col">STT</th>
           <th scope="col">Loại</th>
           <th scope="col">Tên gói</th>
           <th scope="col">Mô tả</th>
@@ -63,7 +62,6 @@
       <th:block th:each="typeEntry : ${packages.entrySet()}">
           <th:block th:each="adPackage, adStat : ${typeEntry.value}" th:object="${adPackage}">
               <tr class="ads" style="text-align: center; vertical-align: middle; cursor: pointer">
-                  <td th:if="${adStat.index == 0}" th:rowspan="${#lists.size(typeEntry.value)}" th:text="${adStat.count}"></td>
                   <td th:if="${adStat.index == 0}" th:rowspan="${#lists.size(typeEntry.value)}" th:text="${AdUtils.convertTypeToVietnamese(typeEntry.key)}"></td>
                   <td th:text="*{name}">Tên gói</td>
                   <td th:text="*{description}">Mô tả</td>

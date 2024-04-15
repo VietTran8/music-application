@@ -246,6 +246,7 @@
                                     <label for="genreId" class="form-label">Thể loại</label>
                                     <select class="form-select" id="updatedGenreId" name="genreId">
                                         <th:block th:each="genre, stat : ${genres}">
+                                            <option value="0">Chọn thể loại</option>
                                             <option th:text="${genre.getName()}" th:value="${genre.getId()}" th:attr="selected=${stat.first} ? 'selected' : null"></option>
                                         </th:block>
                                     </select>

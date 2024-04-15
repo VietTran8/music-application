@@ -199,7 +199,7 @@ public class PackageService {
                         ).toList().get(0);
                     }
                     try {
-                        String paymentUrl = vnPayService.createPayment(userPackageBought.getAmount().longValue(), RETURN_URL, ipAddress, userPackageBought.getId());
+                        String paymentUrl = vnPayService.createPayment(requestBody.getAmount().longValue(), RETURN_URL, ipAddress, userPackageBought.getId());
                         CreatePaymentResponse data = new CreatePaymentResponse();
                         data.setUrl(paymentUrl);
 

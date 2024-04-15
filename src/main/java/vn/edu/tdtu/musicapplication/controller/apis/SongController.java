@@ -12,6 +12,7 @@ import vn.edu.tdtu.musicapplication.dtos.request.UpdateSongNameReq;
 import vn.edu.tdtu.musicapplication.service.SongService;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/song")
@@ -45,6 +46,12 @@ public class SongController {
     @PostMapping("/add")
     public ResponseEntity<?> addSong(@RequestBody AddSongRequest requestBody){
         BaseResponse<?> response = songService.addSong(requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/add-all")
+    public ResponseEntity<?> addAllSong(@RequestBody List<AddSongRequest> requestBody){
+        BaseResponse<?> response = songService.addAllSong(requestBody);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 

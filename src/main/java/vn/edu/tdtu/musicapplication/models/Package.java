@@ -38,4 +38,12 @@ public class Package {
         }
         return "Phổ thông";
     }
+    public BigDecimal getFinalPrice() {
+        if (discount == null || discount == 0) {
+            return price;
+        } else {
+            BigDecimal discountAmount = price.multiply(new BigDecimal(discount)).divide(new BigDecimal(100));
+            return price.subtract(discountAmount);
+        }
+    }
 }

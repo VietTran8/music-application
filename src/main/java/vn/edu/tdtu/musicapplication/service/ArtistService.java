@@ -78,6 +78,21 @@ public class ArtistService {
         return response;
     }
 
+    public BaseResponse<?> saveAllArtistInfo(List<AddArtistRequest> request){
+        request.forEach(req -> {
+            ArtistInfo artistInfo = adminAddArtistMapper.mapToObject(req);
+            artistInfoRepository.save(artistInfo);
+        });
+
+        BaseResponse<MinimizedArtistInfo> response = new BaseResponse<>();
+        response.setStatus(true);
+        response.setMessage("Artist added successfully");
+        response.setData(null);
+        response.setCode(HttpServletResponse.SC_CREATED);
+
+        return response;
+    }
+
     public BaseResponse<?> getArtistsByName(String name){
         List<ArtistInfo> artistInfos = artistInfoRepository.findByArtistNameContainingIgnoreCase(name);
         List<MinimizedArtistInfo> minimizedArtistInfos = new ArrayList<>();

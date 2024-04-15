@@ -62,23 +62,30 @@ public class AlbumService {
         return albumRepository.save(album);
     }
 
-    public BaseResponse<List<MinimizedSong>> getSongsFromAlbumResp(Long albumId){
+    public BaseResponse<List<MinimizedSong>> getSongsFromAlbumResp(Principal principal, Long albumId){
+        User user = null;
+        if(principal != null){
+            user = principalUtils.loadUserFromPrincipal(principal);
+        }
+
         BaseResponse<List<MinimizedSong>> baseResponse = new BaseResponse<>();
         baseResponse.setMessage("Data fetched successfully!");
         baseResponse.setStatus(true);
         baseResponse.setCode(HttpServletResponse.SC_OK);
-        baseResponse.setData(getSongsFromAlbum(albumId));
+        baseResponse.setData(getSongsFromAlbum(user, albumId));
 
         return baseResponse;
     }
 
-    public List<MinimizedSong> getSongsFromAlbum(Long albumId){
+    public List<MinimizedSong> getSongsFromAlbum(User currentUser, Long albumId){
         Album foundAlbum = findById(albumId);
 
         if(foundAlbum != null && foundAlbum.getActive()){
-            List<Song> songs = foundAlbum.getSongs().stream().filter(Song::getActive).toList();
-
-            return songs.stream().map(minimizedSongMapper::mapToDto).toList();
+            return foundAlbum
+                    .getSongs()
+                    .stream().filter(song -> song.getActive() && (!song.getIsPremium() || (currentUser != null && currentUser.getIsPremium())))
+                    .map(minimizedSongMapper::mapToDto)
+                    .toList();
         }
 
         return new ArrayList<>();

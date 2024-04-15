@@ -1,10 +1,7 @@
 package vn.edu.tdtu.musicapplication.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import vn.edu.tdtu.musicapplication.enums.EPackageType;
 import vn.edu.tdtu.musicapplication.models.advertisement.Advertisement;
 import vn.edu.tdtu.musicapplication.models.artist_request.ArtistInfo;
@@ -22,6 +19,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 @Data
+@ToString
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

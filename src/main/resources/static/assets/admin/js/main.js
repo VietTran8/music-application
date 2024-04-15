@@ -49,38 +49,56 @@ const monthlyRevenueConfig = {
     data: monthlyRevenueData,
 }
 
-fetch('/api/statistics/year/2024')
-    .then(response => response.json())
-    .then(data => {
-        if (data.code === 200 && data.status) {
-            const stats = data.data;
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
 
-            const adsData = Object.values(stats.ADS);
-            const upgradeData = Object.values(stats.UPGRADE_PACKAGE);
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
 
-            annualRevenueChart.data.datasets[0].data = adsData;
-            annualRevenueChart.data.datasets[1].data = upgradeData;
-            annualRevenueChart.update();
-        }
-    })
-    .catch(error => console.error('Error fetching annual statistics:', error));
+    return [year, month, day].join('-');
+}
 
-fetch('/api/statistics/month')
-    .then(response => response.json())
-    .then(data => {
-        if (data.code === 200 && data.status) {
-            const stats = data.data;
+document.getElementById('date').value = formatDate(new Date());
 
-            const adsData = Object.values(stats.ADS);
-            const upgradeData = Object.values(stats.UPGRADE_PACKAGE);
+function fetchStatistic(month, year){
+    fetch(`/api/statistics/year/${year}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === 200 && data.status) {
+                const stats = data.data;
 
-            monthlyRevenueChart.data.labels = ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4", "Tuần 5", "Tuần 6"].slice(0, Math.max(adsData.length, upgradeData.length));
-            monthlyRevenueChart.data.datasets[0].data = adsData;
-            monthlyRevenueChart.data.datasets[1].data = upgradeData;
-            monthlyRevenueChart.update();
-        }
-    })
-    .catch(error => console.error('Error fetching monthly statistics:', error));
+                const adsData = Object.values(stats.ADS);
+                const upgradeData = Object.values(stats.UPGRADE_PACKAGE);
+
+                annualRevenueChart.data.datasets[0].data = adsData;
+                annualRevenueChart.data.datasets[1].data = upgradeData;
+                annualRevenueChart.update();
+            }
+        })
+        .catch(error => console.error('Error fetching annual statistics:', error));
+
+    fetch(`/api/statistics/month/${month}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === 200 && data.status) {
+                const stats = data.data;
+
+                const adsData = Object.values(stats.ADS);
+                const upgradeData = Object.values(stats.UPGRADE_PACKAGE);
+
+                monthlyRevenueChart.data.labels = ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4", "Tuần 5", "Tuần 6"].slice(0, Math.max(adsData.length, upgradeData.length));
+                monthlyRevenueChart.data.datasets[0].data = adsData;
+                monthlyRevenueChart.data.datasets[1].data = upgradeData;
+                monthlyRevenueChart.update();
+            }
+        })
+        .catch(error => console.error('Error fetching monthly statistics:', error));
+}
 
 const annualRevenue = document.getElementById('annualRevenue')
 const monthlyRevenue = document.getElementById('monthlyRevenue')
@@ -101,5 +119,19 @@ monthlyRevenueChart.data.datasets.forEach(dataset => {
         dataset.label = `Doanh thu gói quảng cáo ${monthLabels[currentMonth - 1]}/${currentYear}`;
     } else if (dataset.label.includes("nâng cấp")) {
         dataset.label = `Doanh thu gói nâng cấp ${monthLabels[currentMonth - 1]}/${currentYear}`;
+    }
+});
+
+fetchStatistic(currentMonth, currentYear);
+
+document.getElementById('date').addEventListener('change', function() {
+    let input = this.value;
+    let date = new Date(input);
+
+    if (!isNaN(date.getTime())) {
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+
+        fetchStatistic(month, year);
     }
 });

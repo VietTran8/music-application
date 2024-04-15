@@ -23,10 +23,10 @@ public class StatisticController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
-    @GetMapping("/month")
-    public ResponseEntity<?> getMonthStatistics(){
+    @GetMapping("/month/{month}")
+    public ResponseEntity<?> getMonthStatistics(@PathVariable("month") int month){
         LocalDateTime now = LocalDateTime.now();
-        BaseResponse<?> response = service.getMonthStatistics(3, now.getYear());
+        BaseResponse<?> response = service.getMonthStatistics(month, now.getYear());
 
         return ResponseEntity.status(response.getCode()).body(response);
     }

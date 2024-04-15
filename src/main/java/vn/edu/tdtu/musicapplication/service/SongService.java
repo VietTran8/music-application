@@ -65,6 +65,21 @@ public class SongService {
         return response;
     }
 
+    public BaseResponse<?> addAllSong(List<AddSongRequest> addSongRequest){
+        addSongRequest.forEach(req -> {
+            Song song = addSongRequestMapper.mapToObject(req);
+            songRepository.save(song);
+        });
+
+        BaseResponse<MinimizedSong> response = new BaseResponse<>();
+        response.setCode(HttpServletResponse.SC_CREATED);
+        response.setData(null);
+        response.setMessage("Song added successfully");
+        response.setStatus(true);
+
+        return response;
+    }
+
     public Long countTotalSongs(){
         return songRepository.countAllByActive(true);
     }

@@ -216,10 +216,15 @@ public class MainController {
                     if(albumId != null){
                         Album album = albumService.findById(albumId);
                         MinimizedAlbum minimizedAlbum = albumService.toMinimized(album);
-
+                        List<MinimizedSong> songs = album
+                                .getSongs()
+                                .stream().filter(song -> song.getActive() && (!song.getIsPremium() || (currentUser != null && currentUser.getIsPremium())))
+                                .map(songService::toMinimized)
+                                .toList();
+                        
                         model.addAttribute("album", minimizedAlbum);
                         model.addAttribute("liked", currentUser != null && currentUser.getFavouriteAlbums().contains(album));
-                        model.addAttribute("songs", album.getSongs().stream().filter(Song::getActive).map(songService::toMinimized).toList());
+                        model.addAttribute("songs", songs);
                     }
                 }
                 case "favourite-album" -> {
