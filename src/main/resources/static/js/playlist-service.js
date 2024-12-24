@@ -1,4 +1,4 @@
-let baseUrl = "http://localhost:8080/api/playlist"
+let baseUrl = "/api/playlist"
 
 export async function addPlaylist(title, songIds) {
     const requestBody = {

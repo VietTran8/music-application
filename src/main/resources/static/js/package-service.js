@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:8080/api/package"
+const baseUrl = "/api/package"
 
 export async function createPayment(packageId, amount){
     let requestBody = {

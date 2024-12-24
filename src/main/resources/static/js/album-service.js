@@ -1,4 +1,4 @@
-let baseUrl = "http://localhost:8080/api/album"
+let baseUrl = "/api/album"
 
 export async function getSongsFromAlbum(albumId){
     try {

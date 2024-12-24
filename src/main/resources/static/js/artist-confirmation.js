@@ -284,7 +284,7 @@ document.getElementById('send-request').addEventListener('click', function() {
 
             requestBody.ownerShips = await Promise.all(uploadPromises);
 
-            const response = await fetch('http://localhost:8080/api/artist-req/submit', {
+            const response = await fetch('/api/artist-req/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

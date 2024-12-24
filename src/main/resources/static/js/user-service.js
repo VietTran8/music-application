@@ -1,4 +1,4 @@
-let baseUrl = "http://localhost:8080/api/user";
+let baseUrl = "/api/user";
 
 export async function followUser(userEmail){
     var requestBody = {

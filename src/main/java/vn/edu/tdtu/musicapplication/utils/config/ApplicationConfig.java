@@ -38,7 +38,7 @@ public class ApplicationConfig {
                             .email("hoanviet882003@gmail.com")
                             .password("$2a$12$BfBkPcoR1ZDSEg0ujDnGte3ADqbFDHZUlgZbkFiDSnu1AUcf6CFh.")
                             .active(true)
-                            .roles(List.of(roleService.findByName(ERole.ROLE_USER)))
+                            .roles(List.of(roleService.findByName(ERole.ROLE_ADMIN)))
                             .build();
                     userService.saveUser(user);
                 }

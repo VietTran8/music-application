@@ -1,4 +1,4 @@
-let baseUrl = "http://localhost:8080/api/file";
+let baseUrl = "/api/file";
 
 export async function uploadFile(formData, type) {
     try {

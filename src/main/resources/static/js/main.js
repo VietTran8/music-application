@@ -949,7 +949,7 @@ function songDetailsScript() {
                         case "ok" :
                             songService.deleteSong(songId)
                                 .then(result => {
-                                    loadContentByUrl("http://localhost:8080/home");
+                                    loadContentByUrl("http://localhost:3000/home");
                                     showToast(result.message, "", false)
                                 });
                             break;
@@ -1008,14 +1008,14 @@ function showPreAds(){
 
 function loadSong(song){
     title.innerText = song.name;
-    title.setAttribute("href", "http://localhost:8080/song-details?song_id=" + song.id);
+    title.setAttribute("href", "http://localhost:3000/song-details?song_id=" + song.id);
     title.addEventListener("click", e => {
         e.preventDefault();
         let url = title.getAttribute('href');
         loadContentByUrl(url);
     })
     artist.innerText = song.artists[0].artistName;
-    artist.setAttribute("href", "http://localhost:8080/artist-details?artist_id=" + song.artists[0].id);
+    artist.setAttribute("href", "http://localhost:3000/artist-details?artist_id=" + song.artists[0].id);
     artist.addEventListener("click", e => {
         e.preventDefault();
         let url = artist.getAttribute('href');
@@ -1038,9 +1038,9 @@ async function beginLoadContent() {
     let strSplit = url.split("?")
     var requestUrl = strSplit[0]
 
-    if (url === "http://localhost:8080/") {
+    if (url === "http://localhost:3000/") {
         requestUrl += "home/component"
-    } else if (url === "http://localhost:8080") {
+    } else if (url === "http://localhost:3000") {
         requestUrl += "/home/component"
     } else {
         requestUrl += "/component"

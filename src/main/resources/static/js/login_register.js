@@ -6,7 +6,7 @@ const passwordRegister = document.getElementById('register-password');
 const usernameRegister = document.getElementById('register-username');
 const emailRegister = document.getElementById('register-email');
 const registerErrorMsg = document.getElementById('register-error-message')
-const baseUrl = "http://localhost:8080/"
+const baseUrl = "/"
 
 signUpSwitch.addEventListener('click', () => {
 	container.classList.add("right-panel-active");

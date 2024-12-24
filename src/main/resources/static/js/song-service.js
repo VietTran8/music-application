@@ -1,4 +1,4 @@
-let baseUrl = "http://localhost:8080/api/song";
+let baseUrl = "/api/song";
 
 export async function getSongById(songId) {
     try {
